@@ -22,6 +22,7 @@
             --text-dark: #2C1A0F;
             --text-muted: #665245;
             --danger-red: #B32828;
+            --success-green: #27ae60;
         }
 
         * {
@@ -47,7 +48,9 @@
         nav {
             background-color: var(--bg-white);
             padding: 1.5rem 5%;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--bg-beige);
             position: sticky;
             top: 0;
@@ -70,6 +73,25 @@
             font-weight: 500;
         }
 
+        .cart-btn {
+            background-color: var(--choco-dark);
+            color: var(--bg-white);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .cart-btn:hover {
+            background-color: var(--gold-accent);
+        }
+
         /* Hero Section */
         .hero {
             background-color: var(--bg-cream);
@@ -80,7 +102,7 @@
             gap: 4rem;
             max-width: 1300px;
             margin: 0 auto;
-            min-height: 75vh;
+            min-height: 70vh;
         }
 
         .hero-text {
@@ -118,6 +140,7 @@
             border: 2px solid var(--choco-dark);
             text-transform: uppercase;
             font-size: 0.9rem;
+            cursor: pointer;
         }
 
         .btn-choco:hover {
@@ -125,7 +148,7 @@
             color: var(--choco-dark);
         }
 
-        /* Revolving Image Slider (Carousel) */
+        /* Revolving Image Slider */
         .hero-slider-container {
             flex: 1;
             position: relative;
@@ -153,9 +176,137 @@
             opacity: 1;
         }
 
+        /* Products Section */
+        .products-section {
+            padding: 6rem 5%;
+            background-color: var(--bg-white);
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--choco-dark);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--gold-accent);
+            font-weight: 600;
+            margin-bottom: 3rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .product-card {
+            background: var(--bg-cream);
+            border: 1px solid var(--bg-beige);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .quantity-control {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .qty-btn {
+            background: var(--bg-beige);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--choco-dark);
+            transition: background 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--gold-accent);
+            color: white;
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid var(--bg-beige);
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .add-to-cart-btn {
+            background-color: var(--choco-dark);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: var(--gold-accent);
+        }
+
         /* Features Bar */
         .features {
-            background-color: var(--bg-white);
+            background-color: var(--bg-cream);
             padding: 4rem 5%;
             border-top: 1px solid var(--bg-beige);
             border-bottom: 1px solid var(--bg-beige);
@@ -174,27 +325,21 @@
             align-items: center;
             gap: 15px;
             padding: 1rem;
-            background: var(--bg-cream);
+            background: var(--bg-white);
             border-radius: 10px;
-            transition: transform 0.3s ease;
             border: 1px solid rgba(179, 135, 40, 0.1);
-        }
-
-        .feature-item:hover {
-            transform: translateY(-5px);
         }
 
         .feature-icon {
             width: 50px;
             height: 50px;
-            background-color: var(--bg-white);
+            background-color: var(--bg-cream);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--gold-accent);
             font-size: 1.2rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .feature-item h4 {
@@ -209,7 +354,7 @@
         /* Ingredients & Allergy Section */
         .details-section {
             padding: 6rem 5%;
-            background-color: var(--bg-cream);
+            background-color: var(--bg-white);
         }
 
         .details-grid {
@@ -227,10 +372,9 @@
             color: var(--choco-dark);
         }
 
-        /* Ingredients List */
         .ingredients-list {
             list-style: none;
-            background: var(--bg-white);
+            background: var(--bg-cream);
             padding: 2.5rem;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.04);
@@ -273,7 +417,6 @@
             margin-top: 3px;
         }
 
-        /* Allergy Alert Box */
         .allergy-box {
             background-color: #FFF9F9;
             border: 2px solid #F2D5D5;
@@ -284,7 +427,6 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(139, 50, 50, 0.05);
         }
 
         .allergy-box i {
@@ -320,6 +462,198 @@
             font-weight: 700;
             color: var(--danger-red);
             margin-bottom: 0;
+        }
+
+        /* Cart Modal Drawer - Improved Scrolling & Layout */
+        .cart-modal {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            z-index: 2000;
+            transition: right 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            overflow-y: auto; /* Entire drawer scrolls smoothly if content is long */
+        }
+
+        .cart-modal.open {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--bg-beige);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--choco-dark);
+        }
+
+        .cart-items {
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--bg-beige);
+            gap: 10px;
+        }
+
+        .cart-item-details h4 {
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+
+        .cart-item-details p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .cart-qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cart-qty-btn {
+            background: var(--bg-beige);
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--choco-dark);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .cart-qty-btn:hover {
+            background: var(--gold-accent);
+            color: white;
+        }
+
+        .remove-item {
+            color: var(--danger-red);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 5px;
+        }
+
+        .checkout-form {
+            border-top: 1px solid var(--bg-beige);
+            padding-top: 1rem;
+        }
+
+        .free-shipping-notice {
+            background-color: var(--bg-cream);
+            border: 1px solid var(--bg-beige);
+            border-radius: 8px;
+            padding: 0.7rem;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--choco-dark);
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--choco-dark);
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid var(--bg-beige);
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .checkout-summary-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .checkout-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--choco-dark);
+            margin-top: 0.5rem;
+            margin-bottom: 1.2rem;
+            border-top: 1px dashed var(--bg-beige);
+            padding-top: 0.8rem;
+        }
+
+        .whatsapp-checkout-btn {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+
+        .whatsapp-checkout-btn:hover {
+            background-color: #128C7E;
+        }
+
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1500;
+            display: none;
+        }
+
+        .cart-overlay.open {
+            display: block;
         }
 
         /* Footer / Contact Section */
@@ -405,7 +739,6 @@
             box-shadow: 2px 2px 15px rgba(0,0,0,0.3);
         }
 
-        /* Responsive Design - Mobile Fixes */
         @media (max-width: 992px) {
             .hero {
                 flex-direction: column;
@@ -413,27 +746,19 @@
                 padding: 4rem 5%;
             }
             .hero h1 { font-size: 3rem; }
-            
-            /* Fixed Slider collapsing issue on mobile */
             .hero-slider-container { 
-                flex: none; /* Prevents container from collapsing */
+                flex: none;
                 width: 100%;
                 max-width: 500px;
                 height: 400px; 
                 margin-top: 2rem; 
             }
-            
             .details-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.5rem; }
-            
-            /* Smaller slider height for phone screens */
-            .hero-slider-container {
-                height: 300px;
-            }
-            
+            .hero-slider-container { height: 300px; }
             .whatsapp-float {
                 width: 50px;
                 height: 50px;
@@ -451,15 +776,16 @@
             <h2>Healthy Choco Bytes</h2>
             <p>Homemade Goodness in Every Bite</p>
         </div>
+        <button class="cart-btn" onclick="toggleCart()">
+            <i class="fas fa-shopping-bag"></i> Cart (<span id="cart-count">0</span>)
+        </button>
     </nav>
 
     <section class="hero">
         <div class="hero-text">
             <h1>Premium.<br><span>Nutritious.</span><br>Delicious.</h1>
             <p>Experience the perfect blend of premium dark chocolate, a satisfying crunch, and protein-packed dry fruits. Guilt-free indulgence crafted entirely with love.</p>
-            <a href="https://wa.me/918871921212" class="btn-choco">
-                <i class="fab fa-whatsapp"></i> Order via WhatsApp
-            </a>
+            <a href="#products" class="btn-choco">Shop Products</a>
         </div>
         
         <!-- Revolving Image Slider -->
@@ -469,6 +795,89 @@
             <img src="images/chocolate.png" alt="Premium Chocolate Texture" class="slide">
         </div>
     </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="products">
+        <h2 class="section-title">Our Healthy Treats</h2>
+        <p class="section-subtitle">✨ Free Delivery on Orders Above ₹499! ✨</p>
+        <div class="products-grid">
+            <!-- Product 1: Protein Bar -->
+            <div class="product-card">
+                <div>
+                    <img src="images/banner.png" alt="Healthy Protein Bar" class="product-img">
+                    <h3>Healthy Protein Bar</h3>
+                    <p>Packed with pea protein, rich dry fruits, and unsweetened peanut butter for pure plant energy. (1 Pc)</p>
+                    <div class="product-price">₹69 <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">(Per Pc)</span></div>
+                </div>
+                <div>
+                    <div class="quantity-control">
+                        <button class="qty-btn" onclick="changeQty('bar', -1)">-</button>
+                        <input type="text" id="qty-bar" class="qty-input" value="1" readonly>
+                        <button class="qty-btn" onclick="changeQty('bar', 1)">+</button>
+                    </div>
+                    <button class="add-to-cart-btn" onclick="addToCart('Healthy Protein Bar (1 Pc)', 69, 'qty-bar')">Add to Cart</button>
+                </div>
+            </div>
+
+            <!-- Product 2: Protein Chocolate Box -->
+            <div class="product-card">
+                <div>
+                    <img src="images/chocolate.png" alt="Protein Chocolate Box" class="product-img">
+                    <h3>Protein Chocolate Box</h3>
+                    <p>Made with 55% Morde dark chocolate compound, ragi murmura crunch, and wholesome protein. (Box of 4 Pcs)</p>
+                    <div class="product-price">₹49 <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">(Per 4 Pcs Box)</span></div>
+                </div>
+                <div>
+                    <div class="quantity-control">
+                        <button class="qty-btn" onclick="changeQty('choco', -1)">-</button>
+                        <input type="text" id="qty-choco" class="qty-input" value="1" readonly>
+                        <button class="qty-btn" onclick="changeQty('choco', 1)">+</button>
+                    </div>
+                    <button class="add-to-cart-btn" onclick="addToCart('Protein Chocolate Box (4 Pcs)', 49, 'qty-choco')">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal Drawer -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h3>Your Shopping Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">&times;</button>
+        </div>
+        
+        <div class="cart-items" id="cartItemsContainer">
+            <p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Your cart is empty.</p>
+        </div>
+
+        <div class="checkout-form" id="checkoutFormSection" style="display: none;">
+            <div class="free-shipping-notice" id="freeShippingNoticeBox"></div>
+            <div class="checkout-summary-line">
+                <span>Subtotal:</span>
+                <span id="cartSubtotal">₹0</span>
+            </div>
+            <div class="checkout-summary-line">
+                <span>Shipping Fee:</span>
+                <span id="cartShippingDisplay">₹100</span>
+            </div>
+            <div class="checkout-total">
+                <span>Total Amount:</span>
+                <span id="cartTotalPrice">₹100</span>
+            </div>
+            <div class="form-group">
+                <label for="customerName">Your Full Name *</label>
+                <input type="text" id="customerName" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="customerAddress">Delivery Address *</label>
+                <textarea id="customerAddress" rows="2" placeholder="House no, Street, City, Pincode" required></textarea>
+            </div>
+            <button class="whatsapp-checkout-btn" onclick="sendToWhatsApp()">
+                <i class="fab fa-whatsapp"></i> Send Order to WhatsApp
+            </button>
+        </div>
+    </div>
 
     <section class="features">
         <div class="features-grid">
@@ -493,7 +902,6 @@
 
     <section class="details-section">
         <div class="details-grid">
-            <!-- Ingredients List -->
             <div>
                 <h2 class="details-title">What's Inside</h2>
                 <ul class="ingredients-list">
@@ -542,19 +950,37 @@
                 </ul>
             </div>
 
-            <!-- Allergen Alert -->
             <div>
-                <h2 class="details-title" style="color: transparent; user-select: none;">Allergen Info</h2> <!-- Invisible title to match grid height -->
+                <h2 class="details-title" style="color: transparent; user-select: none;">Allergen Info</h2>
                 <div class="allergy-box">
                     <i class="fas fa-exclamation-triangle"></i>
                     <h3>ALLERGEN ALERT</h3>
-                    
                     <p class="highlight">Contains: Nuts (Peanuts, Almonds, Cashews, Pistachios) and Dairy (Butter).</p>
-                    
                     <p>Our products are lovingly crafted in a home kitchen. While we maintain strict hygiene standards and sanitize all equipment, we cannot guarantee absolute protection against cross-contamination.</p>
-                    
                     <p class="warning-text">Please consume with caution if you have severe food allergies.</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process & Certification Section -->
+    <section class="details-section" style="background-color: var(--bg-cream);">
+        <h2 class="details-title">Crafted With Love</h2>
+        <div class="details-grid">
+            <div style="text-align: center;">
+                <h3 style="margin-bottom: 1rem; color: var(--choco-dark);">See How It's Made</h3>
+                <video width="100%" controls style="border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                    <source src="videos/making-process.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div style="text-align: center;">
+                <h3 style="margin-bottom: 1rem; color: var(--choco-dark);">FSSAI Certified</h3>
+                <p style="margin-bottom: 1.5rem; color: var(--text-muted);">We follow strict quality and safety standards.</p>
+                <a href="images/fssai-license1.png" target="_blank">
+                    <img src="images/fssai-license1.png" alt="FSSAI License" style="max-width: 250px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer;">
+                </a>
+                <p style="margin-top: 1rem; font-size: 0.8rem;">Click to view certificate</p>
             </div>
         </div>
     </section>
@@ -564,7 +990,7 @@
             <div class="contact-widget">
                 <h3><i class="fab fa-whatsapp"></i> Chat With Us</h3>
                 <p>Have questions or ready to order?</p>
-                <a href="https://wa.me/918871921212" style="font-size: 1.3rem; font-weight: 600;">+91 8871921212</a>
+                <a href="https://wa.me/918871921212?text=Hello%20Healthy%20Choco%20Bytes,%20I%20would%20like%20to%20know%20more%20about%20your%20products." style="font-size: 1.3rem; font-weight: 600;" target="_blank">+91 8871921212</a>
             </div>
             
             <div class="contact-widget">
@@ -583,23 +1009,159 @@
 
         <div class="footer-bottom">
             <p class="footer-tagline">THANK YOU FOR SUPPORTING SMALL & HEALTHY! <i class="fas fa-heart" style="color: var(--gold-accent);"></i></p>
+            <p style="font-size: 0.75rem; margin-top: 15px; color: #aaa; font-style: italic;">
+                Disclaimer: Images and videos on this site are AI-generated representations and do not necessarily reflect the final appearance of our handmade products.
+            </p>
             <p style="font-size: 0.8rem; margin-top: 10px; color: #888;">&copy; 2026 Healthy Choco Bytes.</p>
         </div>
     </footer>
 
-    <!-- Floating WhatsApp Icon -->
-    <a href="https://wa.me/918871921212" class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+    <!-- Floating WhatsApp Icon with Predefined Message -->
+    <a href="https://wa.me/918871921212?text=Hello%20Healthy%20Choco%20Bytes,%20I%20would%20like%20to%20know%20more%20about%20your%20products." class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    <!-- JavaScript for the Image Slider -->
+    <!-- Cart & Shopping Logic Script -->
     <script>
+        let cart = [];
+
+        function changeQty(productId, amount) {
+            const input = document.getElementById('qty-' + productId);
+            let currentVal = parseInt(input.value);
+            currentVal += amount;
+            if (currentVal < 1) currentVal = 1;
+            input.value = currentVal;
+        }
+
+        function addToCart(name, price, qtyInputId) {
+            const qty = parseInt(document.getElementById(qtyInputId).value);
+            const existingItem = cart.find(item => item.name === name);
+            
+            if (existingItem) {
+                existingItem.qty += qty;
+            } else {
+                cart.push({ name, price, qty });
+            }
+
+            updateCartUI();
+            toggleCart();
+        }
+
+        function updateCartItemQty(index, change) {
+            cart[index].qty += change;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('open');
+            document.getElementById('cartOverlay').classList.toggle('open');
+        }
+
+        function updateCartUI() {
+            const countSpan = document.getElementById('cart-count');
+            const itemsContainer = document.getElementById('cartItemsContainer');
+            const checkoutSection = document.getElementById('checkoutFormSection');
+            const subtotalSpan = document.getElementById('cartSubtotal');
+            const shippingDisplay = document.getElementById('cartShippingDisplay');
+            const totalPriceSpan = document.getElementById('cartTotalPrice');
+            const freeShippingNoticeBox = document.getElementById('freeShippingNoticeBox');
+
+            let totalCount = 0;
+            let subtotal = 0;
+
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Your cart is empty.</p>';
+                checkoutSection.style.display = 'none';
+                countSpan.innerText = '0';
+                return;
+            }
+
+            let html = '';
+            cart.forEach((item, index) => {
+                totalCount += item.qty;
+                subtotal += item.price * item.qty;
+                html += `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <h4>${item.name}</h4>
+                            <p>₹${item.price} each</p>
+                        </div>
+                        <div class="cart-qty-controls">
+                            <button class="cart-qty-btn" onclick="updateCartItemQty(${index}, -1)">-</button>
+                            <span style="font-weight: 600; min-width: 20px; text-align: center; font-size: 0.9rem;">${item.qty}</span>
+                            <button class="cart-qty-btn" onclick="updateCartItemQty(${index}, 1)">+</button>
+                            <button class="remove-item" onclick="removeFromCart(${index})" title="Remove"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Shipping and Free Delivery Logic
+            let shippingFee = subtotal >= 499 ? 0 : 100;
+            let finalTotal = subtotal + shippingFee;
+
+            if (subtotal >= 499) {
+                shippingDisplay.innerHTML = '<del style="color: #999;">₹100</del> <span style="color: var(--success-green); font-weight: 700; margin-left: 5px;">₹0 (FREE)</span>';
+                freeShippingNoticeBox.innerHTML = '🎉 <strong>Congratulations!</strong> You have unlocked Free Delivery.';
+                freeShippingNoticeBox.style.color = 'var(--success-green)';
+            } else {
+                let amountNeeded = 499 - subtotal;
+                shippingDisplay.innerText = '₹100';
+                freeShippingNoticeBox.innerHTML = `🚀 Add <strong>₹${amountNeeded}</strong> more to get <strong>Free Delivery</strong>!`;
+                freeShippingNoticeBox.style.color = 'var(--choco-dark)';
+            }
+
+            itemsContainer.innerHTML = html;
+            countSpan.innerText = totalCount;
+            subtotalSpan.innerText = '₹' + subtotal;
+            totalPriceSpan.innerText = '₹' + finalTotal;
+            checkoutSection.style.display = 'block';
+        }
+
+        function sendToWhatsApp() {
+            const name = document.getElementById('customerName').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+
+            if (!name || !address) {
+                alert('Please enter your Name and Delivery Address to proceed.');
+                return;
+            }
+
+            let message = `Hello Healthy Choco Bytes, I want to place an order:%0A%0A`;
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                let itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+                message += `- ${item.name} (Qty: ${item.qty}) - ₹${itemTotal}%0A`;
+            });
+
+            let shippingFee = subtotal >= 499 ? 0 : 100;
+            let finalTotal = subtotal + shippingFee;
+
+            message += `%0ASubtotal: ₹${subtotal}`;
+            message += `%0AShipping: ${shippingFee === 0 ? 'FREE (₹0)' : '₹100'}`;
+            message += `%0A*Total Amount:* ₹${finalTotal}`;
+            message += `%0A%0A*Customer Details:*%0AName: ${name}%0AAddress: ${address}`;
+
+            const whatsappUrl = `https://wa.me/918871921212?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Hero Image Slider Script
         document.addEventListener("DOMContentLoaded", function() {
             let currentSlide = 0;
             const slides = document.querySelectorAll('.slide');
             
             if(slides.length > 0) {
-                // Change image every 3.5 seconds
                 setInterval(function() {
                     slides[currentSlide].classList.remove('active');
                     currentSlide = (currentSlide + 1) % slides.length;
