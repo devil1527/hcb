@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management | HCB Admin</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.4')}">
+    
+    <style>
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-top: 1.5rem;
+        }
+        .admin-table th, .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-beige);
+            font-size: 0.9rem;
+        }
+        .admin-table th {
+            background-color: var(--bg-cream);
+            color: var(--choco-dark);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Admin Top Nav -->
+    <header th:replace="~{fragments/admin-nav :: adminNav('products')}"></header>
+
+    <main class="admin-main-container">
+        
+        <div class="admin-page-header">
+            <div>
+                <h1 style="color: var(--choco-dark); margin: 0;">Product Catalog</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Manage inventory, pricing, and visibility</p>
+            </div>
+            <div class="admin-header-actions">
+                <a th:href="@{/admin/products/new}" class="btn-choco">
+                    <i class="fas fa-plus"></i> Add New Product
+                </a>
+            </div>
+        </div>
+
+        <!-- Success Alert -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <div class="table-scroll-hint"><i class="fas fa-arrows-left-right"></i> Swipe table horizontally to view all product details</div>
+        <div class="admin-table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Visibility</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="product : ${products}">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <img th:src="@{'/images/' + ${product.imageFilename != null and !product.imageFilename.isEmpty() ? product.imageFilename : 'banner.png'}}"
+                                     style="width: 45px; height: 45px; border-radius: 6px; object-fit: cover; border: 1px solid var(--bg-beige);">
+                                <div>
+                                    <strong th:text="${product.name}">Product Name</strong><br>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);" th:text="'SKU: ' + (${product.sku} ?: 'N/A')">SKU: N/A</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <strong th:text="'₹' + ${#numbers.formatDecimal(product.price, 1, 2)}">₹69.00</strong>
+                        </td>
+                        <td>
+                            <form th:action="@{'/admin/products/' + ${product.id} + '/update-stock'}" method="post" style="display: flex; align-items: center; gap: 6px;">
+                                <input type="number" name="stockQuantity" th:value="${product.stockQuantity}" min="0"
+                                       style="width: 60px; padding: 4px; border-radius: 4px; border: 1px solid var(--border-subtle); text-align: center;">
+                                <button type="submit" class="qty-btn" style="width: 28px; height: 28px; font-size: 0.8rem;" title="Update stock"><i class="fas fa-check"></i></button>
+                            </form>
+                        </td>
+                        <td>
+                            <form th:action="@{'/admin/products/' + ${product.id} + '/toggle-active'}" method="post" style="display: inline;">
+                                <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0;"
+                                        th:title="${product.active ? 'Click to remove from website' : 'Click to restore to website'}">
+                                    <span th:if="${product.active}" class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 700; padding: 4px 10px; cursor: pointer;">
+                                        <i class="fas fa-check-circle"></i> Live on Store
+                                    </span>
+                                    <span th:unless="${product.active}" class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 700; padding: 4px 10px; cursor: pointer;">
+                                        <i class="fas fa-eye-slash"></i> Removed (Hidden)
+                                    </span>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <span th:if="${product.stockQuantity == 0}" class="badge badge-out-of-stock">Sold Out</span>
+                            <span th:if="${product.stockQuantity > 0 and product.stockQuantity <= product.lowStockThreshold}" class="badge badge-low-stock">
+                                <i class="fas fa-fire"></i> Selling Out Fast
+                            </span>
+                            <span th:if="${product.stockQuantity > product.lowStockThreshold}" class="badge" style="background: #e8f8f0; color: #27ae60;">In Stock</span>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <a th:href="@{'/admin/products/' + ${product.id} + '/edit'}" style="color: var(--choco-dark); font-size: 0.95rem;" title="Edit Product">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{'/products/' + ${product.slug}}" target="_blank" style="color: var(--gold-accent); font-size: 0.95rem;" title="View on Website">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                <form th:action="@{'/admin/products/' + ${product.id} + '/toggle-active'}" method="post" style="display: inline; margin: 0;">
+                                    <button th:if="${product.active}" type="submit" 
+                                            onclick="return confirm('Remove this product from the website? It will be hidden from customers without deleting records.');"
+                                            style="background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 4px 9px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                            title="Hide product from store">
+                                        <i class="fas fa-eye-slash"></i> Remove
+                                    </button>
+                                    <button th:unless="${product.active}" type="submit" 
+                                            style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; padding: 4px 9px; border-radius: 5px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                            title="Restore product to store">
+                                        <i class="fas fa-eye"></i> Show
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+</body>
+</html>

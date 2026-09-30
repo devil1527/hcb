@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <footer th:fragment="footer">
+        <div class="footer-grid">
+            <div class="contact-widget">
+                <h3><i class="fab fa-whatsapp"></i> Chat With Us</h3>
+                <p>Have questions or ready to order?</p>
+                <a th:href="@{'https://wa.me/' + ${businessWhatsapp ?: '918871921212'} + '?text=Hello%20Healthy%20Choco%20Bytes,%20I%20would%20like%20to%20know%20more%20about%20your%20products.'}"
+                   style="font-size: 1.3rem; font-weight: 600;" target="_blank" rel="noopener noreferrer">
+                    +91 8871921212
+                </a>
+            </div>
+            
+            <div class="contact-widget">
+                <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                <p>Freshly made and dispatched from:</p>
+                <p style="font-weight: 600; color: white;">Legacy Vista, Pune<br>Maharashtra, India</p>
+            </div>
+
+            <div class="contact-widget">
+                <h3><i class="fas fa-share-nodes"></i> Connect</h3>
+                <p>Follow our journey online:</p>
+                <a href="https://instagram.com/healthychocobytes" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i> @healthychocobytes</a>
+                <a th:href="@{/}"><i class="fas fa-globe"></i> hcb.ideaai.in</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-tagline">THANK YOU FOR SUPPORTING SMALL & HEALTHY! <i class="fas fa-heart" style="color: var(--gold-accent);"></i></p>
+            <p style="font-size: 0.75rem; margin-top: 15px; color: #aaa; font-style: italic;">
+                Disclaimer: Images and videos on this site are AI-generated representations and do not necessarily reflect the final appearance of our handmade products.
+            </p>
+            <p style="font-size: 0.8rem; margin-top: 10px; color: #888;">&copy; 2026 Healthy Choco Bytes. All rights reserved.</p>
+        </div>
+
+        <!-- Floating WhatsApp Button -->
+        <a th:href="@{'https://wa.me/' + ${businessWhatsapp ?: '918871921212'} + '?text=Hello%20Healthy%20Choco%20Bytes,%20I%20would%20like%20to%20know%20more%20about%20your%20products.'}"
+           class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <header th:fragment="adminNav(activePage)" class="admin-nav">
+        <div class="admin-nav-container">
+            <div class="admin-nav-brand-row">
+                <a th:href="@{/admin}" class="admin-nav-brand">
+                    <i class="fas fa-crown"></i> HCB Admin
+                </a>
+                <div class="admin-nav-actions">
+                    <a th:href="@{/}" target="_blank" class="admin-nav-store-link" title="Open Public Storefront">
+                        <i class="fas fa-external-link-alt"></i> <span class="hide-mobile">Storefront</span>
+                    </a>
+                    <form th:action="@{/admin/logout}" method="post" style="display: inline; margin: 0;">
+                        <button type="submit" class="admin-logout-btn" title="Sign out of Administrator Session">
+                            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <nav class="admin-nav-links" style="background: transparent !important; border: none !important; box-shadow: none !important;">
+                <a th:href="@{/admin}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+                    <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                </a>
+                <a th:href="@{/admin/products}" th:classappend="${activePage == 'products'} ? 'active' : ''">
+                    <i class="fas fa-cookie-bite"></i> <span>Products</span>
+                </a>
+                <a th:href="@{/admin/orders}" th:classappend="${activePage == 'orders'} ? 'active' : ''">
+                    <i class="fas fa-receipt"></i> <span>Orders</span>
+                </a>
+                <a th:href="@{/admin/settings}" th:classappend="${activePage == 'settings'} ? 'active' : ''">
+                    <i class="fas fa-sliders-h"></i> <span>Settings</span>
+                </a>
+                <a th:href="@{/admin/audit}" th:classappend="${activePage == 'audit'} ? 'active' : ''">
+                    <i class="fas fa-history"></i> <span>Audit Logs</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta sec:authorize="hasRole('ADMIN')" name="hcb-user-role" content="ADMIN">
+</head>
+<body>
+    <nav th:fragment="nav" class="customer-nav">
+        <!-- Role meta tag for client-side enforcement -->
+        <meta sec:authorize="hasRole('ADMIN')" name="hcb-user-role" content="ADMIN">
+
+        <a th:href="@{/}" class="brand-logo">
+            <h2>Healthy Choco Bytes</h2>
+            <p class="brand-tagline">Homemade Goodness in Every Bite</p>
+        </a>
+
+        <div class="nav-actions">
+            <a th:href="@{/#products}" class="nav-link" title="Explore artisanal treats">
+                <i class="fas fa-cookie-bite"></i> <span class="nav-label">Treats</span>
+            </a>
+
+            <!-- Customer authenticated links (ROLE_CUSTOMER only) -->
+            <span sec:authorize="hasRole('CUSTOMER')" style="display: flex; align-items: center; gap: 8px;">
+                <a th:href="@{/orders}" class="nav-link" title="My Orders">
+                    <i class="fas fa-box-open"></i> <span class="nav-label">Orders</span>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+                    <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer; font-family: inherit; font-size: inherit;" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i> <span class="nav-label">Logout</span>
+                    </button>
+                </form>
+            </span>
+
+            <!-- Administrator authenticated (No Admin button on public store navbar; only logout) -->
+            <span sec:authorize="hasRole('ADMIN')" style="display: flex; align-items: center; gap: 8px;">
+                <form th:action="@{/admin/logout}" method="post" style="display: inline; margin: 0;">
+                    <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer; font-family: inherit; font-size: inherit;" title="Log out of Admin session">
+                        <i class="fas fa-sign-out-alt"></i> <span class="nav-label">Logout</span>
+                    </button>
+                </form>
+            </span>
+
+            <!-- Anonymous / Guest links -->
+            <span sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="nav-link" title="Customer Login">
+                    <i class="fas fa-user"></i> <span class="nav-label">Login</span>
+                </a>
+            </span>
+
+            <!-- Cart Trigger Button (Visible to guests and customers, hidden for administrators) -->
+            <button sec:authorize="!hasRole('ADMIN')" class="cart-btn" onclick="toggleCart()" type="button" aria-label="Open Shopping Cart">
+                <i class="fas fa-shopping-bag"></i> <span class="cart-label">Cart</span> (<span class="cart-count-badge">0</span>)
+            </button>
+        </div>
+    </nav>
+</body>
+</html>

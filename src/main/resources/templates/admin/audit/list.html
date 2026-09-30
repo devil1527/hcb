@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs | HCB Admin</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.4')}">
+    
+    <style>
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .admin-table th, .admin-table td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-beige);
+            font-size: 0.85rem;
+        }
+        .admin-table th {
+            background-color: var(--bg-cream);
+            color: var(--choco-dark);
+            font-weight: 600;
+        }
+        .action-tag {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            font-family: monospace;
+            background: #e9ecef;
+            color: #495057;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 2rem;
+        }
+        .pagination-container a, .pagination-container span {
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            border: 1px solid var(--bg-beige);
+            text-decoration: none;
+            color: var(--choco-dark);
+            font-size: 0.85rem;
+            background: white;
+        }
+        .pagination-container .active {
+            background: var(--choco-dark);
+            color: white;
+            border-color: var(--choco-dark);
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-cream);">
+
+    <header th:replace="~{fragments/admin-nav :: adminNav('audit')}"></header>
+
+    <main class="admin-main-container">
+        
+        <div class="admin-page-header">
+            <div>
+                <h1 style="color: var(--choco-dark); margin: 0;">System Audit Logs</h1>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.2rem;">Cryptographically timestamped immutable event trail of all administrative actions, stock changes, and orders.</p>
+            </div>
+        </div>
+
+        <div class="table-scroll-hint"><i class="fas fa-arrows-left-right"></i> Swipe table horizontally to view all audit details</div>
+        <div class="admin-table-responsive">
+            <div th:if="${#lists.isEmpty(auditPage.content)}" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                No audit events recorded yet.
+            </div>
+
+            <table th:unless="${#lists.isEmpty(auditPage.content)}" class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 180px;">Timestamp</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                        <th>Entity ID</th>
+                        <th style="width: 150px;">Actor / User</th>
+                        <th>Details / Payload</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="log : ${auditPage.content}">
+                        <td th:text="${#temporals.format(log.createdAt, 'dd MMM yyyy, hh:mm:ss a')}">28 Sep 2026, 04:30:00 PM</td>
+                        <td>
+                            <span class="action-tag" th:text="${log.action}">ORDER_CREATED</span>
+                        </td>
+                        <td th:text="${log.entityType}">ORDER</td>
+                        <td th:text="${log.entityId != null ? '#' + log.entityId : '-'}">#1001</td>
+                        <td th:text="${log.user != null ? (log.user.fullName + ' (#' + log.user.id + ')') : 'System / Guest'}">System</td>
+                        <td style="font-family: monospace; font-size: 0.78rem; color: #555; word-break: break-all;" th:text="${log.newValue != null ? log.newValue : log.oldValue}">
+                            {"orderNumber":"HCB-1001"}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${auditPage.totalPages > 1}" class="pagination-container">
+            <a th:if="${auditPage.hasPrevious()}" th:href="@{/admin/audit(page=${auditPage.number - 1})}">&laquo; Prev</a>
+            <span th:each="i : ${#numbers.sequence(0, auditPage.totalPages - 1)}">
+                <a th:if="${i != auditPage.number}" th:href="@{/admin/audit(page=${i})}" th:text="${i + 1}">1</a>
+                <span th:if="${i == auditPage.number}" class="active" th:text="${i + 1}">1</span>
+            </span>
+            <a th:if="${auditPage.hasNext()}" th:href="@{/admin/audit(page=${auditPage.number + 1})}">Next &raquo;</a>
+        </div>
+
+    </main>
+
+</body>
+</html>

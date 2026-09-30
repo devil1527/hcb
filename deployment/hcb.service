@@ -1,0 +1,53 @@
+[Unit]
+Description=HCB - Healthy Choco Bytes Ordering Application
+Documentation=https://hcb.ideaai.in
+After=syslog.target network.target mariadb.service
+Wants=mariadb.service
+
+[Service]
+Type=simple
+User=hcb
+Group=hcb
+WorkingDirectory=/opt/hcb
+
+# Java execution with constrained heap and G1 garbage collector
+ExecStart=/usr/bin/java \
+  -Xms256m \
+  -Xmx512m \
+  -XX:MaxMetaspaceSize=128m \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -Djava.security.egd=file:/dev/./urandom \
+  -jar /opt/hcb/hcb-current.jar \
+  --spring.config.location=/opt/hcb/application.properties
+
+# Graceful shutdown configuration
+ExecStop=/bin/kill -SIGTERM $MAINPID
+SuccessExitStatus=143
+TimeoutStopSec=30
+
+# Automatic restart on failure
+Restart=on-failure
+RestartSec=10
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hcb
+
+# Linux security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/hcb /var/log/hcb
+ReadOnlyPaths=/opt/hcb
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an Account | Healthy Choco Bytes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+</head>
+<body>
+
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main>
+        <div class="form-container">
+            <h1 class="form-title">Join HCB</h1>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Register to place orders, track delivery, and receive updates</p>
+
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/register}" th:object="${registerRequest}" method="post">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" th:field="*{fullName}" class="form-control" placeholder="e.g. Ashwin Golani" required>
+                    <span th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="e.g. ashwin@example.com" required>
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="mobile">Mobile Number (10 Digits) *</label>
+                    <input type="tel" id="mobile" th:field="*{mobile}" class="form-control" placeholder="e.g. 9876543210" required>
+                    <span th:if="${#fields.hasErrors('mobile')}" th:errors="*{mobile}" class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password (Minimum 8 characters) *</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-control" placeholder="Create a strong password" required>
+                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password *</label>
+                    <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control" placeholder="Re-enter your password" required>
+                    <span th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="form-error"></span>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn-choco" style="width: 100%; border: none;">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </div>
+            </form>
+
+            <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--bg-beige); font-size: 0.9rem;">
+                Already have an account? 
+                <a th:href="@{/login}" style="color: var(--gold-accent); font-weight: 600; text-decoration: none;">Log in here</a>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+</body>
+</html>

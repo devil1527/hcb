@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | Healthy Choco Bytes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+    
+    <style>
+        .error-container {
+            max-width: 600px;
+            margin: 5rem auto;
+            text-align: center;
+            padding: 3rem 2rem;
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(62,36,21,0.04);
+        }
+        .error-code {
+            font-size: 5rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--gold-accent);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-cream);">
+
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main>
+        <div class="error-container">
+            <div class="error-code">404</div>
+            <h1 style="font-size: 1.8rem; color: var(--choco-dark); margin-bottom: 0.8rem;">Treat Not Found</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">
+                Looks like the page you are looking for has melted away or moved to another shelf.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <a th:href="@{/}" class="btn-choco">
+                    <i class="fas fa-home"></i> Return Home
+                </a>
+                <a th:href="@{/#products}" class="btn-choco-outline">
+                    <i class="fas fa-cookie-bite"></i> Explore Treats
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+</body>
+</html>

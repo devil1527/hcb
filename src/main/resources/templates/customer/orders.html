@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Healthy Choco Bytes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+
+    <style>
+        .orders-container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 5%;
+            min-height: 60vh;
+        }
+        @media (max-width: 768px) {
+            .orders-container {
+                margin: 1.5rem auto !important;
+                padding: 0 3% !important;
+            }
+        }
+        .orders-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .order-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(62,36,21,0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(62,36,21,0.08);
+        }
+        .order-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--bg-beige);
+            font-size: 0.9rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-pending, .badge-payment_pending { background: #fff3cd; color: #856404; }
+        .badge-payment_submitted { background: #e0f2fe; color: #0369a1; }
+        .badge-verified, .badge-payment_verified { background: #d4edda; color: #155724; }
+        .badge-confirmed { background: #d1fae5; color: #065f46; }
+        .badge-preparing { background: #fef3c7; color: #92400e; }
+        .badge-dispatched, .badge-shipped { background: #cce5ff; color: #004085; }
+        .badge-delivered { background: #28a745; color: #ffffff; }
+        .badge-cancelled, .badge-failed, .badge-payment_rejected { background: #f8d7da; color: #721c24; }
+        .badge-refunded { background: #e2e3e5; color: #383d41; }
+        .badge-new { background: #e2e8f0; color: #334155; }
+        
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px dashed var(--bg-beige);
+        }
+
+        @media (max-width: 480px) {
+            .orders-container {
+                margin: 1rem auto !important;
+                padding: 0 8px !important;
+                padding-bottom: 80px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .orders-header {
+                margin-bottom: 1.2rem !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+            }
+            .orders-header h1 {
+                font-size: 1.5rem !important;
+            }
+            .orders-header p {
+                font-size: 0.85rem !important;
+            }
+            .orders-header .btn-choco {
+                width: 100% !important;
+                text-align: center !important;
+                justify-content: center !important;
+                box-sizing: border-box !important;
+            }
+            .order-card {
+                padding: 1rem 0.75rem !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                min-width: 0 !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
+            }
+            .order-meta-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.6rem !important;
+                font-size: 0.82rem !important;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .order-meta-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main class="orders-container">
+        <div class="orders-header">
+            <div>
+                <h1 style="font-size: 2.2rem; margin-bottom: 0.3rem;">Order History</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Track all your artisanal chocolate orders and payments.</p>
+            </div>
+            <div>
+                <a th:href="@{/#products}" class="btn-choco" style="font-size: 0.85rem; padding: 0.6rem 1.2rem;">
+                    <i class="fas fa-cookie-bite"></i> Explore More Chocolates
+                </a>
+            </div>
+        </div>
+
+        <!-- If no orders -->
+        <div th:if="${#lists.isEmpty(orders)}" class="empty-orders">
+            <i class="fas fa-box-open" style="font-size: 3.5rem; color: var(--gold-accent); margin-bottom: 1.5rem;"></i>
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Orders Yet</h2>
+            <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 1.5rem;">You haven't placed any orders with us yet. Treat yourself or a loved one to handcrafted chocolate goodness!</p>
+            <a th:href="@{/#products}" class="btn-choco">Browse Chocolates</a>
+        </div>
+
+        <!-- Orders List -->
+        <div th:unless="${#lists.isEmpty(orders)}">
+            <div th:each="ord : ${orders}" class="order-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.8rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                            <h3 style="margin: 0; font-size: 1.2rem; color: var(--choco-dark);" th:text="${ord.orderNumber}">HCB-1001</h3>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(ord.status.name())}" th:text="${ord.status.displayName}">DELIVERED</span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                            Placed on <span th:text="${#temporals.format(ord.createdAt, 'dd MMM yyyy, hh:mm a')}">28 Sep 2026, 04:30 PM</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <a th:href="@{'/orders/' + ${ord.id}}" class="btn-choco-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                            View Details <i class="fas fa-chevron-right" style="font-size: 0.75rem; margin-left: 0.3rem;"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="order-meta-grid">
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Items:</span>
+                        <strong th:text="${#lists.size(ord.items) + ' item(s)'}">1 item(s)</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Total Amount:</span>
+                        <strong style="color: var(--choco-dark); font-size: 1.05rem;" th:text="${'₹' + #numbers.formatDecimal(ord.totalAmount, 1, 2)}">₹499.00</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Deliver To:</span>
+                        <span th:text="${ord.deliveryCity + ', ' + ord.deliveryPincode}">Pune, 411001</span>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Payment:</span>
+                        <span th:if="${ord.paymentStatus.name() == 'PENDING'}" style="color: #856404; font-weight: 600;">
+                            <i class="fas fa-qrcode"></i> UPI Pending
+                        </span>
+                        <span th:if="${ord.paymentStatus.name() == 'SUBMITTED'}" style="color: #0284c7; font-weight: 600;">
+                            <i class="fas fa-receipt"></i> Under Review
+                        </span>
+                        <span th:if="${ord.paymentStatus.name() == 'VERIFIED'}" style="color: var(--success-green); font-weight: 600;">
+                            <i class="fas fa-check-circle"></i> Verified
+                        </span>
+                        <span th:if="${ord.paymentStatus.name() == 'REJECTED'}" style="color: #dc3545; font-weight: 600;">
+                            <i class="fas fa-times-circle"></i> Rejected
+                        </span>
+                        <span th:if="${ord.paymentStatus.name() == 'REFUNDED'}" style="color: #64748b; font-weight: 600;">
+                            <i class="fas fa-undo"></i> Refunded
+                        </span>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Order Status:</span>
+                        <span th:if="${ord.status.name() == 'DELIVERED'}" style="color: #28a745; font-weight: 700;">
+                            <i class="fas fa-box-open"></i> Delivered
+                        </span>
+                        <span th:if="${ord.status.name() == 'DISPATCHED'}" style="color: #0056b3; font-weight: 700;">
+                            <i class="fas fa-shipping-fast"></i> Dispatched
+                        </span>
+                        <span th:if="${ord.status.name() == 'PREPARING'}" style="color: #d97706; font-weight: 700;">
+                            <i class="fas fa-blender"></i> Preparing
+                        </span>
+                        <span th:if="${ord.status.name() == 'PAYMENT_VERIFIED'}" style="color: #0d9488; font-weight: 700;">
+                            <i class="fas fa-check-double"></i> Confirmed
+                        </span>
+                        <span th:if="${ord.status.name() == 'PAYMENT_SUBMITTED'}" style="color: #0284c7; font-weight: 700;">
+                            <i class="fas fa-clock"></i> Verification In Progress
+                        </span>
+                        <span th:if="${ord.status.name() == 'PAYMENT_PENDING'}" style="color: #b45309; font-weight: 700;">
+                            <i class="fas fa-hourglass-half"></i> Payment Pending
+                        </span>
+                        <span th:if="${ord.status.name() == 'CANCELLED'}" style="color: #dc3545; font-weight: 700;">
+                            <i class="fas fa-times-circle"></i> Cancelled
+                        </span>
+                        <span th:if="${ord.status.name() == 'NEW'}" style="color: #475569; font-weight: 700;">
+                            <i class="fas fa-sparkles"></i> Placed
+                        </span>
+                        <span th:if="${ord.status.name() == 'REFUNDED'}" style="color: #64748b; font-weight: 700;">
+                            <i class="fas fa-undo"></i> Refunded
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+</body>
+</html>

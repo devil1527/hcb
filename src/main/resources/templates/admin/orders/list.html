@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders | HCB Admin</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.4')}">
+    
+    <style>
+        .filter-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(62,36,21,0.02);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .admin-table th, .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--bg-beige);
+            font-size: 0.88rem;
+        }
+        .admin-table th {
+            background-color: var(--bg-cream);
+            color: var(--choco-dark);
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-verified, .badge-confirmed, .badge-delivered { background: #d4edda; color: #155724; }
+        .badge-cancelled, .badge-failed { background: #f8d7da; color: #721c24; }
+        .badge-new { background: #e2e3e5; color: #383d41; }
+        .badge-shipped, .badge-preparing { background: #cce5ff; color: #004085; }
+
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 2rem;
+        }
+        .pagination-container a, .pagination-container span {
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            border: 1px solid var(--bg-beige);
+            text-decoration: none;
+            color: var(--choco-dark);
+            font-size: 0.85rem;
+            background: white;
+        }
+        .pagination-container .active {
+            background: var(--choco-dark);
+            color: white;
+            border-color: var(--choco-dark);
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-cream);">
+
+    <header th:replace="~{fragments/admin-nav :: adminNav('orders')}"></header>
+
+    <main class="admin-main-container">
+        
+        <div class="admin-page-header">
+            <div>
+                <h1 style="color: var(--choco-dark); margin: 0;">Orders Management</h1>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.2rem;">Track customer orders, verify UPI payments, and update kitchen dispatch statuses.</p>
+            </div>
+            <div class="admin-header-actions">
+                <a th:href="@{/admin/orders}" class="btn-choco-outline">
+                    <i class="fas fa-sync-alt"></i> Reset Filters
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Form -->
+        <div class="filter-card">
+            <form th:action="@{/admin/orders}" method="get" class="orders-filter-form">
+                <div>
+                    <label style="display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">Search</label>
+                    <input type="text" name="query" th:value="${query}" placeholder="Order #, Customer name, email, phone..." class="form-control" style="font-size: 0.88rem; padding: 0.6rem;">
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">Payment</label>
+                    <select name="paymentStatus" class="form-control" style="font-size: 0.88rem; padding: 0.6rem;">
+                        <option value="">All Payment Statuses</option>
+                        <option th:each="ps : ${paymentStatuses}" th:value="${ps}" th:text="${ps}" th:selected="${paymentStatus == ps}"></option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-size: 0.78rem; text-transform: uppercase; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">Order Status</label>
+                    <select name="status" class="form-control" style="font-size: 0.88rem; padding: 0.6rem;">
+                        <option value="">All Order Statuses</option>
+                        <option th:each="st : ${orderStatuses}" th:value="${st}" th:text="${st.displayName}" th:selected="${status == st}"></option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-choco" style="padding: 0.65rem 1.2rem; font-size: 0.88rem; border: none; width: 100%;">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-scroll-hint"><i class="fas fa-arrows-left-right"></i> Swipe table horizontally to view all order details</div>
+
+        <!-- Orders Table -->
+        <div class="admin-table-responsive">
+            <div th:if="${#lists.isEmpty(ordersPage.content)}" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                <i class="fas fa-receipt" style="font-size: 2.5rem; color: var(--gold-accent); margin-bottom: 1rem; display: block;"></i>
+                No orders match your filter criteria.
+            </div>
+
+            <table th:unless="${#lists.isEmpty(ordersPage.content)}" class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date & Time</th>
+                        <th>Customer</th>
+                        <th>City</th>
+                        <th>Total Amount</th>
+                        <th>Payment Status</th>
+                        <th>Order Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${ordersPage.content}">
+                        <td><strong th:text="${order.orderNumber}">HCB-1001</strong></td>
+                        <td th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, hh:mm a')}">28 Sep 2026</td>
+                        <td>
+                            <strong th:text="${order.customerName}">Ashwin Sharma</strong><br>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);" th:text="${order.customerMobile}">9876543210</span>
+                        </td>
+                        <td th:text="${order.deliveryCity}">Pune</td>
+                        <td><strong style="color: var(--choco-dark);" th:text="${'₹' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₹499.00</strong></td>
+                        <td>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(order.paymentStatus.name())}" th:text="${order.paymentStatus}">PENDING</span>
+                        </td>
+                        <td>
+                            <span th:class="'badge badge-' + ${#strings.toLowerCase(order.status.name())}" th:text="${order.status.displayName}">NEW</span>
+                        </td>
+                        <td>
+                            <a th:href="@{'/admin/orders/' + ${order.id}}" class="btn-choco-outline" style="font-size: 0.8rem; padding: 0.35rem 0.75rem;">
+                                Manage <i class="fas fa-chevron-right" style="font-size: 0.7rem; margin-left: 3px;"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${ordersPage.totalPages > 1}" class="pagination-container">
+            <a th:if="${ordersPage.hasPrevious()}" th:href="@{/admin/orders(page=${ordersPage.number - 1}, query=${query}, status=${status}, paymentStatus=${paymentStatus})}">&laquo; Prev</a>
+            <span th:each="i : ${#numbers.sequence(0, ordersPage.totalPages - 1)}">
+                <a th:if="${i != ordersPage.number}" th:href="@{/admin/orders(page=${i}, query=${query}, status=${status}, paymentStatus=${paymentStatus})}" th:text="${i + 1}">1</a>
+                <span th:if="${i == ordersPage.number}" class="active" th:text="${i + 1}">1</span>
+            </span>
+            <a th:if="${ordersPage.hasNext()}" th:href="@{/admin/orders(page=${ordersPage.number + 1}, query=${query}, status=${status}, paymentStatus=${paymentStatus})}">Next &raquo;</a>
+        </div>
+
+    </main>
+
+</body>
+</html>

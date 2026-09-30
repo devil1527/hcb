@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${productForm.id != null ? 'Edit Product' : 'Add New Product'} + ' | HCB Admin'">Product Form | HCB Admin</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.4')}">
+    
+    <style>
+        .product-form-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.03);
+        }
+        @media (max-width: 600px) {
+            .product-form-card {
+                padding: 1.5rem 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-cream);">
+
+    <!-- Admin Nav -->
+    <header th:replace="~{fragments/admin-nav :: adminNav('products')}"></header>
+
+    <main class="admin-main-container" style="max-width: 800px;">
+        <div class="product-form-card">
+            
+            <h2 th:text="${productForm.id != null ? 'Edit Product' : 'Add New Product'}" style="margin-bottom: 0.5rem;">Product Form</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Fill in product details, pricing, and upload high-resolution image.</p>
+
+            <form th:action="${productForm.id != null ? '/admin/products/' + productForm.id + '/edit' : '/admin/products/new'}"
+                  th:object="${productForm}" method="post" enctype="multipart/form-data">
+                
+                <div th:if="${#fields.hasGlobalErrors()}" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" style="margin: 0;"></p>
+                </div>
+
+                <input type="hidden" th:field="*{id}" th:if="${productForm.id != null}">
+                <input type="hidden" th:field="*{existingImageFilename}">
+
+                <div class="form-group">
+                    <label for="name">Product Title *</label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="e.g. Healthy Protein Bar" required>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="form-error"></span>
+                </div>
+
+                <div class="form-group" th:if="${productForm.id == null}">
+                    <label for="slug">URL Slug (Optional, auto-generated if blank)</label>
+                    <input type="text" id="slug" th:field="*{slug}" class="form-control" placeholder="e.g. healthy-protein-bar">
+                    <span th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}" class="form-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Product Description</label>
+                    <textarea id="description" th:field="*{description}" class="form-control" rows="4" placeholder="Wholesome ingredients, pack size, benefits..."></textarea>
+                    <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error"></span>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="price">Selling Price (₹) *</label>
+                        <input type="number" step="0.01" id="price" th:field="*{price}" class="form-control" placeholder="69.00" required>
+                        <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="form-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="costPrice">Internal Cost Price (₹, optional)</label>
+                        <input type="number" step="0.01" id="costPrice" th:field="*{costPrice}" class="form-control" placeholder="35.00">
+                    </div>
+                </div>
+
+                <div class="form-grid-3">
+                    <div class="form-group">
+                        <label for="stockQuantity">Stock Quantity *</label>
+                        <input type="number" id="stockQuantity" th:field="*{stockQuantity}" class="form-control" min="0" required>
+                        <span th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}" class="form-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lowStockThreshold">Low Stock Alert Level</label>
+                        <input type="number" id="lowStockThreshold" th:field="*{lowStockThreshold}" class="form-control" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weightGrams">Weight in Grams</label>
+                        <input type="number" id="weightGrams" th:field="*{weightGrams}" class="form-control" placeholder="50">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="sku">SKU Code (optional)</label>
+                        <input type="text" id="sku" th:field="*{sku}" class="form-control" placeholder="HCB-BAR-01">
+                        <span th:if="${#fields.hasErrors('sku')}" th:errors="*{sku}" class="form-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sortOrder">Display Sort Order</label>
+                        <input type="number" id="sortOrder" th:field="*{sortOrder}" class="form-control" value="0">
+                    </div>
+                </div>
+
+                <!-- Product Image Upload -->
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="imageFile">Product Image (JPEG, PNG, WebP up to 5MB)</label>
+                    <input type="file" id="imageFile" th:field="*{imageFile}" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <span th:if="${#fields.hasErrors('imageFile')}" th:errors="*{imageFile}" class="form-error"></span>
+                    
+                    <div th:if="${productForm.existingImageFilename != null}" style="margin-top: 10px;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Current Image:</span><br>
+                        <img th:src="@{'/images/' + ${productForm.existingImageFilename}}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-top: 4px; border: 1px solid var(--bg-beige);">
+                    </div>
+                </div>
+
+                <!-- Visibility Toggles -->
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin: 1.5rem 0; padding: 1rem; background: var(--bg-cream); border-radius: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">
+                        <input type="checkbox" th:field="*{active}"> Show on Website (Active)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" th:field="*{available}"> Available for Purchase
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 15px; margin-top: 2rem;">
+                    <a th:href="@{/admin/products}" class="btn-choco" style="background: transparent; color: var(--choco-dark);">Cancel</a>
+                    <button type="submit" class="btn-choco" style="border: none;">
+                        <i class="fas fa-save"></i> Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

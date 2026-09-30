@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthy Choco Bytes | Handcrafted Artisanal Chocolates</title>
+    <meta name="description" content="Guilt-free indulgence crafted with love. Premium dark chocolates packed with protein and wholesome dry fruits. FSSAI Certified Kitchen.">
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HCB Stylesheet with Cache Busting -->
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+</head>
+<body>
+
+    <!-- Sticky Navigation -->
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main>
+        <!-- Top Section: Handcrafted Process & FSSAI Certification First -->
+        <section class="craft-fssai-section" style="background: linear-gradient(180deg, var(--bg-cream) 0%, #ffffff 100%); border-bottom: 1px solid var(--bg-beige);">
+            <div style="max-width: 1200px; margin: 0 auto; text-align: center; margin-bottom: 2rem;">
+                <span style="display: inline-block; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--gold-accent); margin-bottom: 0.5rem;">
+                    Pure Craftsmanship & Certified Quality
+                </span>
+                <h1 style="font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--choco-dark); margin: 0 0 0.6rem; line-height: 1.2;">
+                    Crafted With Love & Integrity
+                </h1>
+                <p style="color: var(--text-muted); font-size: 1rem; max-width: 650px; margin: 0 auto; padding: 0 10px;">
+                    Every chocolate is freshly handcrafted in small artisanal batches using premium cocoa, pure nut butters, and wholesome dry fruits.
+                </p>
+            </div>
+
+            <div class="craft-fssai-grid">
+                <!-- Left: See How It's Made Video -->
+                <div class="craft-card">
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1.2rem;">
+                            <i class="fas fa-play-circle" style="color: var(--gold-accent); font-size: 1.3rem;"></i>
+                            <h3 style="margin: 0; font-size: 1.3rem; color: var(--choco-dark);">See How It's Made</h3>
+                        </div>
+                        <video width="100%" controls style="border-radius: 12px; box-shadow: 0 6px 16px rgba(0,0,0,0.08); display: block; max-height: 320px; background: #000; margin: 0 auto; width: 100%; max-width: 100%;">
+                            <source th:src="@{/videos/making-process.mp4}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <p style="margin: 1rem 0 0; font-size: 0.88rem; color: var(--text-muted);">
+                        <i class="fas fa-hand-holding-heart" style="color: var(--gold-accent);"></i> Handcrafted in small hygienic batches • 100% Homemade
+                    </p>
+                </div>
+
+                <!-- Right: FSSAI Certification & Direct License Number Display -->
+                <div class="craft-card">
+                    <div>
+                        <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; color: #15803d; font-size: 2rem; margin-bottom: 1rem;">
+                            <i class="fas fa-shield-check"></i>
+                        </div>
+
+                        <h3 style="margin: 0 0 0.4rem; font-size: 1.4rem; color: var(--choco-dark);">FSSAI Certified Kitchen</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">
+                            Registered Food Business Operator under Food Safety and Standards Act, 2006
+                        </p>
+
+                        <!-- Direct FSSAI License Number Box -->
+                        <div style="background: var(--bg-cream); border: 2px dashed var(--gold-accent); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                            <span style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--choco-dark); margin-bottom: 6px;">
+                                FSSAI Registration Number
+                            </span>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+                                <span class="fssai-number-text">
+                                    21526082005874
+                                </span>
+                                <span style="background: #22c55e; color: white; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px;">VERIFIED</span>
+                            </div>
+                            <span style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+                                Govt. of Maharashtra • Pimpri Chinchwad (PCMC) Ward No-27
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <a th:href="@{/fassai_document.pdf}" target="_blank" rel="noopener noreferrer"
+                           style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: var(--choco-dark); color: white; padding: 0.75rem 1.2rem; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 0.88rem; letter-spacing: 0.5px; transition: background 0.3s; box-shadow: 0 4px 12px rgba(62,36,21,0.15); max-width: 100%; box-sizing: border-box; text-align: center;">
+                            <i class="fas fa-file-pdf" style="color: #f87171;"></i> View Official FSSAI Certificate
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Bar -->
+        <section class="features" style="padding: 2.5rem 5%;">
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-dumbbell"></i></div>
+                    <h4>High Protein</h4>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-heart"></i></div>
+                    <h4>Rich in Nutrition</h4>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-seedling"></i></div>
+                    <h4>Premium Dry Fruits</h4>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fas fa-ban"></i></div>
+                    <h4>No Preservatives</h4>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Products Section -->
+        <section class="products-section" id="products">
+            <h2 class="section-title">Our Healthy Treats</h2>
+            <p class="section-subtitle">✨ Free Delivery on Orders Above ₹499! ✨</p>
+            
+            <div class="products-grid">
+                <!-- Dynamic Loop over Products from MariaDB -->
+                <div class="product-card" th:each="product : ${products}">
+                    <div>
+                        <div class="product-img-wrapper">
+                            <img th:src="@{'/images/' + ${product.imageFilename != null and !product.imageFilename.isEmpty() ? product.imageFilename : 'banner.png'}}"
+                                 th:alt="${product.name}" class="product-img">
+                            <span th:if="${product.outOfStock}" class="badge badge-out-of-stock">Sold Out</span>
+                            <span th:if="${!product.outOfStock and product.lowStock}" class="badge badge-low-stock">
+                                <i class="fas fa-fire"></i> Selling Out Fast
+                            </span>
+                        </div>
+                        <h3 th:text="${product.name}">Product Name</h3>
+                        <p th:text="${product.description}">Product description</p>
+                        <div class="product-price">
+                            <span th:text="'₹' + ${#numbers.formatDecimal(product.price, 1, 2)}">₹69.00</span>
+                        </div>
+                        <span th:if="${!product.outOfStock and product.lowStock}" style="display: block; font-size: 0.8rem; color: #c2410c; font-weight: 600; margin-bottom: 1rem;">
+                            <i class="fas fa-hourglass-half"></i> Limited stock available
+                        </span>
+                    </div>
+                    <div>
+                        <div class="quantity-control">
+                            <button type="button" class="qty-btn"
+                                    th:data-id="${product.id}"
+                                    onclick="changeProductQty(this.getAttribute('data-id'), -1)"
+                                    th:disabled="${product.outOfStock}">-</button>
+                            <input type="text" th:id="'qty-' + ${product.id}" class="qty-input" value="1" 
+                                   th:data-stock="${product.stockQuantity}" readonly>
+                            <button type="button" class="qty-btn"
+                                    th:data-id="${product.id}"
+                                    onclick="changeProductQty(this.getAttribute('data-id'), 1)"
+                                    th:disabled="${product.outOfStock}">+</button>
+                        </div>
+                        <button type="button" class="add-to-cart-btn"
+                                th:disabled="${product.outOfStock}"
+                                th:data-id="${product.id}"
+                                th:data-name="${product.name}"
+                                th:data-price="${product.price}"
+                                th:data-image="${product.imageFilename}"
+                                th:data-stock="${product.stockQuantity}"
+                                onclick="handleAddToCartBtn(this)">
+                            <span th:if="${product.outOfStock}"><i class="fas fa-ban"></i> Sold Out</span>
+                            <span th:unless="${product.outOfStock}"><i class="fas fa-cart-plus"></i> Add to Cart</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Allergen Advisory Banner -->
+        <section style="max-width: 900px; margin: 0 auto 4rem; padding: 0 5%;">
+            <div class="allergy-box" style="margin-top: 1rem;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>ALLERGEN ADVISORY</h3>
+                <p class="highlight">Contains: Tree Nuts (Peanuts, Almonds, Cashews, Pistachios) and Dairy (Butter).</p>
+                <p>Our chocolates are lovingly handcrafted in a certified home kitchen. While we uphold strict sanitization standards, we advise customers with severe nut or dairy allergies to consume with caution.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Drawer Partial -->
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+</body>
+</html>

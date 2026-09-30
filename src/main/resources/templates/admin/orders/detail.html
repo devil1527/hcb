@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Manage Order ' + ${order.orderNumber} + ' | HCB Admin'">Manage Order | HCB Admin</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.4')}">
+    
+    <style>
+        .order-admin-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        @media (max-width: 900px) {
+            .order-admin-grid {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+            .card {
+                padding: 1.3rem 1rem !important;
+                border-radius: 12px !important;
+            }
+        }
+        .card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(62,36,21,0.03);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-verified, .badge-confirmed, .badge-delivered { background: #d4edda; color: #155724; }
+        .badge-cancelled, .badge-failed { background: #f8d7da; color: #721c24; }
+        .badge-new { background: #e2e3e5; color: #383d41; }
+        .badge-shipped, .badge-preparing, .badge-dispatched { background: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body style="background-color: var(--bg-cream);">
+
+    <header th:replace="~{fragments/admin-nav :: adminNav('orders')}"></header>
+
+    <main class="admin-main-container">
+        
+        <!-- Flash Alert -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}" style="margin-bottom: 1.5rem;"></div>
+
+        <!-- Top Header Navigation -->
+        <div class="admin-page-header">
+            <div>
+                <a th:href="@{/admin/orders}" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 0.4rem;">
+                    <i class="fas fa-arrow-left"></i> Back to Orders
+                </a>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 0.2rem;">
+                    <h1 style="margin: 0; color: var(--choco-dark);" th:text="${'Order ' + order.orderNumber}">Order HCB-1001</h1>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(order.status.name())}" th:text="${order.status.displayName}">NEW</span>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(order.paymentStatus.name())}" th:text="${'Payment: ' + order.paymentStatus}">PAYMENT: PENDING</span>
+                </div>
+            </div>
+            <div class="admin-header-actions">
+                <a th:href="'https://wa.me/91' + ${order.customerMobile} + '?text=Hello%20' + ${order.customerName} + ',%20regarding%20your%20Healthy%20Choco%20Bytes%20order%20' + ${order.orderNumber} + '...'" 
+                   target="_blank" class="btn-choco-outline" style="color: #1ebc59; border-color: #1ebc59;">
+                    <i class="fab fa-whatsapp"></i> Chat with Customer
+                </a>
+            </div>
+        </div>
+
+        <div class="order-admin-grid">
+            
+            <!-- Left Column: Items & Delivery Information -->
+            <div>
+                <!-- Items Card -->
+                <div class="card">
+                    <h2 style="font-size: 1.2rem; margin-top: 0; margin-bottom: 1.2rem; border-bottom: 1px solid var(--bg-beige); padding-bottom: 0.6rem; color: var(--choco-dark);">
+                        Order Items (<span th:text="${#lists.size(order.items)}">2</span>)
+                    </h2>
+
+                    <div th:each="item : ${order.items}" style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--bg-beige);">
+                        <div>
+                            <strong style="color: var(--choco-dark);" th:text="${item.productName}">Almond Rocks</strong><br>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                SKU: <span th:text="${item.productSku}">HCB-01</span> &bull; 
+                                Qty: <span th:text="${item.quantity}">1</span> &times; 
+                                &#8377;<span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)}">299.00</span>
+                            </span>
+                        </div>
+                        <div style="font-weight: 700; color: var(--choco-dark);" th:text="${'₹' + #numbers.formatDecimal(item.lineTotal, 1, 2)}">
+                            ₹299.00
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.2rem; padding-top: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                            <span style="color: var(--text-muted);">Subtotal:</span>
+                            <span th:text="${'₹' + #numbers.formatDecimal(order.subtotal, 1, 2)}">₹499.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.9rem;">
+                            <span style="color: var(--text-muted);">Delivery Fee:</span>
+                            <span th:if="${order.shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}" style="color: var(--success-green); font-weight: 700;">FREE (Threshold met)</span>
+                            <span th:unless="${order.shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}" th:text="${'₹' + #numbers.formatDecimal(order.shippingFee, 1, 2)}">₹100.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-top: 0.8rem; border-top: 1px solid var(--bg-beige); font-size: 1.15rem; font-weight: 700; color: var(--choco-dark);">
+                            <span>Total Payable:</span>
+                            <span th:text="${'₹' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₹499.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer & Delivery Card -->
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 1rem; color: var(--choco-dark);">
+                        <i class="fas fa-truck" style="color: var(--gold-accent);"></i> Recipient & Dispatch Address
+                    </h3>
+                    <p style="margin: 0 0 0.3rem 0; font-weight: 600;" th:text="${order.customerName}">Ashwin Sharma</p>
+                    <p style="margin: 0 0 0.3rem 0; color: var(--text-muted); font-size: 0.9rem;" th:text="${order.deliveryAddress}">123 Chocolate Street</p>
+                    <p style="margin: 0 0 0.6rem 0; color: var(--text-muted); font-size: 0.9rem;" th:text="${order.deliveryCity + ', ' + order.deliveryState + ' - ' + order.deliveryPincode}">Pune, Maharashtra - 411001</p>
+                    <div style="font-size: 0.88rem; color: var(--text-muted); padding-top: 0.6rem; border-top: 1px solid var(--bg-beige);">
+                        <p style="margin: 0.2rem 0;"><i class="fas fa-phone" style="width: 18px;"></i> <strong>Phone:</strong> <span th:text="${order.customerMobile}">9876543210</span></p>
+                        <p style="margin: 0.2rem 0;"><i class="fas fa-envelope" style="width: 18px;"></i> <strong>Email:</strong> <span th:text="${order.customerEmail}">name@example.com</span></p>
+                        <p style="margin: 0.2rem 0;" th:if="${order.user != null}"><i class="fas fa-user-check" style="width: 18px;"></i> <strong>Account:</strong> Registered Customer (#<span th:text="${order.user.id}">1</span>)</p>
+                    </div>
+                </div>
+
+                <!-- Admin Notes if present -->
+                <div th:if="${order.adminNotes}" class="card" style="background: #faf8f5;">
+                    <h4 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--choco-dark);">
+                        <i class="fas fa-sticky-note" style="color: var(--gold-accent);"></i> Admin Notes
+                    </h4>
+                    <p style="margin: 0; font-size: 0.88rem; color: var(--text-dark); white-space: pre-wrap;" th:text="${order.adminNotes}"></p>
+                </div>
+            </div>
+
+            <!-- Right Column: Verification & Status Actions -->
+            <div>
+                
+                <!-- Payment Verification Actions -->
+                <div class="card" style="border-top: 4px solid var(--gold-accent);">
+                    <h3 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--choco-dark);">
+                        <i class="fas fa-qrcode"></i> UPI Payment Verification
+                    </h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                        Verify whether the customer has completed payment to your UPI ID and shared proof.
+                    </p>
+
+                    <div style="margin-bottom: 1.2rem; background: var(--bg-cream); padding: 0.8rem; border-radius: 8px; font-size: 0.88rem;">
+                        <strong>Current Payment Status:</strong>
+                        <span th:class="'badge badge-' + ${#strings.toLowerCase(order.paymentStatus.name())}" style="margin-left: 0.5rem;" th:text="${order.paymentStatus}">PENDING</span>
+                    </div>
+
+                    <!-- If Pending, show Verify & Reject options -->
+                    <div th:if="${order.paymentStatus.name() == 'PENDING'}">
+                        <!-- Verify Payment Form -->
+                        <form th:action="@{'/admin/orders/' + ${order.id} + '/verify-payment'}" method="post" style="margin-bottom: 1rem;">
+                            <div class="form-group" style="margin-bottom: 0.8rem;">
+                                <label style="font-size: 0.8rem; font-weight: 600;">Verification Note / UTR Reference (Optional)</label>
+                                <input type="text" name="notes" placeholder="e.g. UTR 426819234827 verified on Paytm" class="form-control" style="font-size: 0.85rem;">
+                            </div>
+                            <button type="submit" class="btn-choco" style="width: 100%; border: none; background: #28a745; font-size: 0.9rem; padding: 0.75rem;">
+                                <i class="fas fa-check-circle"></i> Verify & Confirm Payment
+                            </button>
+                        </form>
+
+                        <!-- Reject Payment Form -->
+                        <form th:action="@{'/admin/orders/' + ${order.id} + '/reject-payment'}" method="post">
+                            <div class="form-group" style="margin-bottom: 0.8rem;">
+                                <label style="font-size: 0.8rem; font-weight: 600;">Rejection Reason</label>
+                                <input type="text" name="notes" placeholder="e.g. Invalid screenshot or payment unreceived" class="form-control" style="font-size: 0.85rem;">
+                            </div>
+                            <button type="submit" class="btn-choco-outline" style="width: 100%; color: var(--danger-red); border-color: var(--danger-red); font-size: 0.85rem; padding: 0.6rem;" onclick="return confirm('Are you sure you want to mark this payment as rejected?');">
+                                <i class="fas fa-times-circle"></i> Reject Payment
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- If already verified -->
+                    <div th:if="${order.paymentStatus.name() == 'VERIFIED'}" style="text-align: center; padding: 1rem; background: #d4edda; border-radius: 8px; color: #155724; font-size: 0.9rem;">
+                        <i class="fas fa-check-circle" style="font-size: 1.5rem; margin-bottom: 0.4rem; display: block;"></i>
+                        <strong>Payment Successfully Verified</strong>
+                    </div>
+
+                    <!-- If rejected -->
+                    <div th:if="${order.paymentStatus.name() == 'FAILED'}" style="text-align: center; padding: 1rem; background: #f8d7da; border-radius: 8px; color: #721c24; font-size: 0.9rem;">
+                        <i class="fas fa-times-circle" style="font-size: 1.5rem; margin-bottom: 0.4rem; display: block;"></i>
+                        <strong>Payment Rejected</strong>
+                    </div>
+                </div>
+
+                <!-- Order Kitchen & Dispatch Status -->
+                <div class="card">
+                    <h3 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--choco-dark);">
+                        <i class="fas fa-tasks"></i> Order Kitchen Status
+                    </h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                        Update the lifecycle status of this order.
+                    </p>
+
+                    <form th:action="@{'/admin/orders/' + ${order.id} + '/update-status'}" method="post">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="font-size: 0.8rem; font-weight: 600;">Status</label>
+                            <select name="status" class="form-control" style="font-size: 0.88rem; padding: 0.6rem;" required>
+                                <option th:each="st : ${orderStatuses}" th:value="${st}" th:text="${st.displayName}" th:selected="${order.status == st}"></option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="font-size: 0.8rem; font-weight: 600;">Status Update Note</label>
+                            <textarea name="notes" rows="2" class="form-control" placeholder="e.g. Freshly handcrafted and dispatched via BlueDart tracking #..." style="font-size: 0.85rem;"></textarea>
+                        </div>
+
+                        <div style="background: #fff3cd; border-left: 3px solid #ffeeba; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.78rem; color: #856404; margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle"></i> Selecting <strong>Cancelled</strong> will automatically restore ordered item quantities back into available stock.
+                        </div>
+
+                        <button type="submit" class="btn-choco" style="width: 100%; border: none; font-size: 0.88rem; padding: 0.75rem;">
+                            <i class="fas fa-save"></i> Save Status Update
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

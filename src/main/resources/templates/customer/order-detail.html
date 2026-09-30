@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Order ' + ${order.orderNumber} + ' | Healthy Choco Bytes'">Order Details | Healthy Choco Bytes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        .order-detail-container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 5%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .detail-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(62,36,21,0.03);
+            margin-bottom: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-verified, .badge-confirmed { background: #d4edda; color: #155724; }
+        .badge-delivered { background: #28a745; color: white; }
+        .badge-dispatched, .badge-shipped { background: #cce5ff; color: #004085; }
+        .badge-cancelled, .badge-failed { background: #f8d7da; color: #721c24; }
+        .badge-refunded, .badge-new { background: #e2e3e5; color: #383d41; }
+
+        /* Progress Stepper */
+        .stepper-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(62,36,21,0.03);
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        .stepper-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            width: 100%;
+        }
+        .step-point {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            text-align: center;
+        }
+        .step-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #f0eae1;
+            color: #8c7362;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 2px solid #e2d7c9;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .step-circle.completed {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .step-label {
+            font-size: 0.76rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .step-label.active {
+            color: var(--choco-dark);
+            font-weight: 700;
+        }
+        .step-bar {
+            flex-grow: 1;
+            height: 3px;
+            background: #e2d7c9;
+            margin: 0 10px;
+            margin-top: -1.2rem;
+            z-index: 1;
+        }
+        .step-bar.completed {
+            background: #28a745;
+        }
+
+        /* Payment Hero Card */
+        .payment-hero-card {
+            background: #fffdfa;
+            border: 2px dashed var(--gold-accent);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 20px rgba(62,36,21,0.04);
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .payment-hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 1.5rem;
+        }
+        .payment-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin-bottom: 0.4rem;
+        }
+        .payment-amount-box {
+            text-align: right;
+            background: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 2px 8px rgba(62,36,21,0.03);
+        }
+        .amount-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .amount-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--choco-dark);
+        }
+
+        /* 2-Column Payment Layout: Left QR, Right UPI/Phone */
+        .payment-methods-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        /* Left QR Box */
+        .qr-payment-box {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(62,36,21,0.03);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .qr-wrapper {
+            display: inline-block;
+            padding: 8px;
+            background: white;
+            border: 2px dashed var(--bg-beige);
+            border-radius: 12px;
+            margin: 0.6rem auto;
+        }
+        .qr-image {
+            width: 175px;
+            height: 175px;
+            object-fit: contain;
+            display: block;
+            border-radius: 8px;
+            max-width: 100%;
+        }
+        .payee-badge {
+            font-size: 0.85rem;
+            color: var(--choco-dark);
+            margin-top: 0.4rem;
+        }
+        .supported-apps {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+            letter-spacing: 0.3px;
+        }
+
+        /* Right UPI & Phone Box */
+        .digital-payment-box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+        }
+        .payment-opt-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 12px;
+            padding: 1.15rem;
+            box-shadow: 0 2px 10px rgba(62,36,21,0.03);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .opt-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            color: var(--choco-dark);
+        }
+        .step-num {
+            background: var(--choco-dark);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .copy-box {
+            background: var(--bg-cream);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .copy-label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .copy-val {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--choco-dark);
+        }
+        .btn-copy {
+            background: white;
+            border: 1px solid var(--choco-dark);
+            color: var(--choco-dark);
+            padding: 0.35rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .btn-copy:hover {
+            background: var(--choco-dark);
+            color: white;
+        }
+        .btn-upi-app {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--choco-dark);
+            color: white;
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 0.75rem;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-upi-app:hover {
+            background: var(--choco-medium);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* WhatsApp Verification Strip */
+        .whatsapp-strip {
+            background: #f0fdf4;
+            border: 1.5px solid #86efac;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .wa-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+            min-width: 0;
+        }
+        .wa-bubble {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #25D366;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(37,211,102,0.3);
+        }
+        .wa-text h4 {
+            margin: 0 0 0.2rem 0;
+            font-size: 1rem;
+            color: #14532d;
+            font-weight: 700;
+        }
+        .wa-text p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: #166534;
+            line-height: 1.4;
+        }
+        .wa-action {
+            flex-shrink: 0;
+        }
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background-color: #25D366;
+            color: white;
+            padding: 0.85rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(37,211,102,0.25);
+            transition: all 0.2s ease;
+        }
+        .whatsapp-btn:hover {
+            background-color: #1ebc59;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37,211,102,0.35);
+            color: white;
+        }
+
+        /* 2-Column Order Details Grid (Items & Delivery) */
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            width: 100%;
+        }
+        .item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--bg-beige);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        /* ==================== RESPONSIVE RULES ==================== */
+        @media (max-width: 850px) {
+            .order-details-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .order-detail-container {
+                margin: 1.5rem auto !important;
+                padding: 0 3% !important;
+            }
+            .detail-card {
+                padding: 1.3rem 1rem !important;
+                margin-bottom: 1.2rem !important;
+                border-radius: 12px !important;
+            }
+            .stepper-card {
+                padding: 1rem 0.5rem !important;
+                margin-bottom: 1.2rem !important;
+                border-radius: 12px !important;
+            }
+            .payment-hero-card {
+                padding: 1.3rem 1rem !important;
+                margin-bottom: 1.2rem !important;
+                border-radius: 14px !important;
+            }
+            .step-circle {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 0.75rem !important;
+            }
+            .step-bar {
+                margin: 0 3px !important;
+                margin-top: -0.9rem !important;
+            }
+            .step-label {
+                font-size: 0.62rem !important;
+                letter-spacing: 0 !important;
+            }
+            .payment-methods-layout {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            .payment-amount-box {
+                text-align: left !important;
+                width: 100% !important;
+            }
+            .copy-box {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.6rem !important;
+            }
+            .copy-box .btn-copy {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+            .copy-val {
+                word-break: break-all !important;
+            }
+            .qr-image {
+                max-width: 100% !important;
+                height: auto !important;
+                max-height: 160px !important;
+            }
+            .wa-action {
+                width: 100% !important;
+            }
+            .wa-action .whatsapp-btn {
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .order-detail-container {
+                margin: 1rem auto !important;
+                padding: 0 8px !important;
+                padding-bottom: 80px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .detail-card {
+                padding: 1rem 0.75rem !important;
+                margin-bottom: 1rem !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+            }
+            .stepper-card {
+                padding: 0.75rem 0.3rem !important;
+                margin-bottom: 1rem !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            .stepper-wrapper {
+                width: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+            }
+            .step-point {
+                flex: 0 0 auto !important;
+                min-width: 46px !important;
+                max-width: 58px !important;
+                text-align: center !important;
+            }
+            .step-circle {
+                width: 26px !important;
+                height: 26px !important;
+                font-size: 0.65rem !important;
+                border-width: 1.5px !important;
+            }
+            .step-bar {
+                flex: 1 1 6px !important;
+                min-width: 6px !important;
+                margin: 0 2px !important;
+                margin-top: -0.65rem !important;
+                height: 2px !important;
+            }
+            .step-label {
+                font-size: 0.52rem !important;
+                letter-spacing: 0 !important;
+                margin-top: 0.25rem !important;
+                line-height: 1.1 !important;
+                white-space: normal !important;
+                word-break: normal !important;
+            }
+            .payment-hero-card {
+                padding: 1rem 0.75rem !important;
+                margin-bottom: 1rem !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+            }
+            .payment-hero-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+                margin-bottom: 1rem !important;
+                padding-bottom: 1rem !important;
+            }
+            .payment-hero-header h2 {
+                font-size: 1.15rem !important;
+                line-height: 1.25 !important;
+                margin-bottom: 0.25rem !important;
+            }
+            .payment-hero-header p {
+                font-size: 0.78rem !important;
+                line-height: 1.35 !important;
+            }
+            .payment-amount-box {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 0.55rem 0.75rem !important;
+            }
+            .amount-label {
+                font-size: 0.7rem !important;
+            }
+            .amount-value {
+                font-size: 1.3rem !important;
+            }
+            .payment-methods-layout {
+                grid-template-columns: 100% !important;
+                gap: 1rem !important;
+                width: 100% !important;
+            }
+            .qr-payment-box {
+                padding: 1rem 0.5rem !important;
+                width: 100% !important;
+            }
+            .qr-wrapper {
+                padding: 6px !important;
+                margin: 0.4rem auto !important;
+            }
+            .qr-image {
+                width: 140px !important;
+                height: 140px !important;
+                max-width: 100% !important;
+            }
+            .payment-opt-card {
+                padding: 0.9rem 0.65rem !important;
+                width: 100% !important;
+            }
+            .opt-title {
+                font-size: 0.88rem !important;
+            }
+            .copy-box {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 0.5rem 0.65rem !important;
+                gap: 0.5rem !important;
+                width: 100% !important;
+            }
+            .copy-box > div {
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+            .copy-val {
+                font-size: 0.86rem !important;
+                word-break: break-all !important;
+                overflow-wrap: anywhere !important;
+                display: block !important;
+            }
+            .btn-copy {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 0.4rem 0.6rem !important;
+                font-size: 0.76rem !important;
+            }
+            .btn-upi-app {
+                width: 100% !important;
+                padding: 0.55rem 0.75rem !important;
+                font-size: 0.78rem !important;
+                text-align: center !important;
+                justify-content: center !important;
+            }
+            .whatsapp-strip {
+                padding: 0.9rem 0.7rem !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+                width: 100% !important;
+            }
+            .wa-content {
+                min-width: 0 !important;
+                width: 100% !important;
+                gap: 0.65rem !important;
+            }
+            .wa-bubble {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 1.2rem !important;
+            }
+            .wa-text h4 {
+                font-size: 0.88rem !important;
+            }
+            .wa-text p {
+                font-size: 0.75rem !important;
+                line-height: 1.35 !important;
+            }
+            .wa-action {
+                width: 100% !important;
+            }
+            .whatsapp-btn {
+                width: 100% !important;
+                padding: 0.65rem 0.8rem !important;
+                font-size: 0.82rem !important;
+                text-align: center !important;
+            }
+            .order-details-grid {
+                grid-template-columns: 100% !important;
+                gap: 1rem !important;
+                width: 100% !important;
+            }
+            .item-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 0.75rem 0 !important;
+                gap: 0.5rem !important;
+                width: 100% !important;
+            }
+            .item-row > div:first-child {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.6rem !important;
+                min-width: 0 !important;
+                flex: 1 1 auto !important;
+            }
+            .item-row > div:first-child > div:first-child {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 1rem !important;
+                flex-shrink: 0 !important;
+            }
+            .item-row h4 {
+                font-size: 0.84rem !important;
+                line-height: 1.2 !important;
+                margin-bottom: 2px !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
+            }
+            .item-row span {
+                font-size: 0.75rem !important;
+            }
+            .item-row > div:last-child {
+                font-size: 0.9rem !important;
+                flex-shrink: 0 !important;
+                text-align: right !important;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .stepper-card {
+                padding: 0.6rem 0.2rem !important;
+            }
+            .step-point {
+                min-width: 40px !important;
+                max-width: 50px !important;
+            }
+            .step-circle {
+                width: 22px !important;
+                height: 22px !important;
+                font-size: 0.55rem !important;
+            }
+            .step-bar {
+                min-width: 4px !important;
+                margin: 0 1px !important;
+                margin-top: -0.55rem !important;
+            }
+            .step-label {
+                font-size: 0.44rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main class="order-detail-container">
+        
+        <!-- Order Placed Success Alert -->
+        <div th:if="${orderPlacedSuccess}" class="alert alert-success" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+            <i class="fas fa-check-circle" style="font-size: 1.8rem; color: #155724;"></i>
+            <div>
+                <h3 style="margin: 0; font-size: 1.1rem; color: #155724;">Thank you for your order!</h3>
+                <p style="margin: 0; font-size: 0.9rem; color: #155724;">Your order <strong th:text="${order.orderNumber}">HCB-1001</strong> has been successfully placed. Please complete UPI payment below.</p>
+            </div>
+        </div>
+
+        <!-- Top Header Info -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.3rem;">
+                    <h1 style="font-size: 1.8rem; margin: 0; color: var(--choco-dark);" th:text="${'Order ' + order.orderNumber}">Order HCB-1001</h1>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(order.status?.name() ?: 'new')}" th:text="${order.status}">CONFIRMED</span>
+                    <span th:class="'badge badge-' + ${#strings.toLowerCase(order.paymentStatus?.name() ?: 'pending')}" th:text="${'Payment: ' + order.paymentStatus}">PAYMENT: PENDING</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                    Placed on <span th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd MMMM yyyy, hh:mm a') : 'Recently'}">28 September 2026, 04:30 PM</span>
+                </p>
+            </div>
+
+            <div>
+                <a th:href="@{/orders}" class="btn-choco-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                    <i class="fas fa-arrow-left"></i> All Orders
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Progress Stepper -->
+        <div class="stepper-card">
+            <div class="stepper-wrapper">
+                <div class="step-point">
+                    <div class="step-circle completed"><i class="fas fa-receipt"></i></div>
+                    <div class="step-label active">Placed</div>
+                </div>
+                <div class="step-bar" th:classappend="${order.paymentStatus?.name() == 'VERIFIED' or order.status?.name() == 'DISPATCHED' or order.status?.name() == 'DELIVERED'} ? 'completed' : ''"></div>
+                <div class="step-point">
+                    <div class="step-circle" th:classappend="${order.paymentStatus?.name() == 'VERIFIED' or order.status?.name() == 'DISPATCHED' or order.status?.name() == 'DELIVERED'} ? 'completed' : ''">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="step-label" th:classappend="${order.paymentStatus?.name() == 'VERIFIED' or order.status?.name() == 'DISPATCHED' or order.status?.name() == 'DELIVERED'} ? 'active' : ''">Verified</div>
+                </div>
+                <div class="step-bar" th:classappend="${order.status?.name() == 'DISPATCHED' or order.status?.name() == 'DELIVERED'} ? 'completed' : ''"></div>
+                <div class="step-point">
+                    <div class="step-circle" th:classappend="${order.status?.name() == 'DISPATCHED' or order.status?.name() == 'DELIVERED'} ? 'completed' : ''">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="step-label" th:classappend="${order.status?.name() == 'DISPATCHED' or order.status?.name() == 'DELIVERED'} ? 'active' : ''">Dispatched</div>
+                </div>
+                <div class="step-bar" th:classappend="${order.status?.name() == 'DELIVERED'} ? 'completed' : ''"></div>
+                <div class="step-point">
+                    <div class="step-circle" th:classappend="${order.status?.name() == 'DELIVERED'} ? 'completed' : ''">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <div class="step-label" th:classappend="${order.status?.name() == 'DELIVERED'} ? 'active' : ''">Delivered</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PENDING PAYMENT HERO CARD ==================== -->
+        <!-- Shows QR on Left, UPI ID & Phone on Right, and WhatsApp Verification at bottom -->
+        <div th:if="${order.paymentStatus?.name() == 'PENDING'}" class="payment-hero-card">
+            
+            <div class="payment-hero-header">
+                <div>
+                    <span class="payment-badge-pill"><i class="fas fa-shield-alt"></i> Complete Your Payment</span>
+                    <h2 style="font-size: 1.4rem; color: var(--choco-dark); margin: 0 0 0.3rem 0;">Scan QR or Pay via UPI / Number</h2>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+                        Choose any payment option below and confirm on WhatsApp for quick processing.
+                    </p>
+                </div>
+                <div class="payment-amount-box">
+                    <span class="amount-label">Total to Pay</span>
+                    <span class="amount-value" th:text="${'₹' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₹499.00</span>
+                </div>
+            </div>
+
+            <!-- Payment Methods: Left QR Code, Right UPI ID & Mobile Number -->
+            <div class="payment-methods-layout">
+                
+                <!-- Left: Option 1 (Scan QR Code) -->
+                <div class="qr-payment-box">
+                    <div class="opt-title" style="justify-content: center;">
+                        <span class="step-num">1</span>
+                        <strong style="font-size: 0.95rem;">Scan & Pay with Any UPI App</strong>
+                    </div>
+
+                    <div class="qr-wrapper">
+                        <img th:if="${customQrImage != null and !customQrImage.isEmpty()}"
+                             th:src="@{'/uploads/' + ${customQrImage}}" 
+                             alt="Payment QR Code" 
+                             class="qr-image">
+                        <img th:unless="${customQrImage != null and !customQrImage.isEmpty()}"
+                             th:src="@{/images/dummy_qr.png}" 
+                             alt="Payment QR Code" 
+                             class="qr-image">
+                    </div>
+
+                    <div class="payee-badge">
+                        <i class="fas fa-check-circle" style="color: #28a745;"></i> Payee: <strong th:text="${upiName}">Healthy Choco Bytes</strong>
+                    </div>
+                    <div class="supported-apps">
+                        Scan with GPay &bull; PhonePe &bull; Paytm &bull; BHIM
+                    </div>
+                </div>
+
+                <!-- Right: Option 2 (UPI ID) & Option 3 (Mobile Number) -->
+                <div class="digital-payment-box">
+                    
+                    <!-- Option 2: Pay to UPI ID -->
+                    <div class="payment-opt-card">
+                        <div class="opt-title">
+                            <span class="step-num">2</span>
+                            <strong>Option 2: Pay to UPI ID (VPA)</strong>
+                        </div>
+                        <div class="copy-box">
+                            <div>
+                                <span class="copy-label">UPI ID</span>
+                                <span id="upiIdText" class="copy-val" th:text="${upiId}">healthychocobytes@paytm</span>
+                            </div>
+                            <button type="button" onclick="copyText('upiIdText', this)" class="btn-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <a th:href="${upiUrl}" class="btn-upi-app">
+                            <i class="fas fa-mobile-alt"></i> Pay via UPI App (GPay / PhonePe / Paytm)
+                        </a>
+                    </div>
+
+                    <!-- Option 3: Pay to Mobile Number -->
+                    <div class="payment-opt-card">
+                        <div class="opt-title">
+                            <span class="step-num">3</span>
+                            <strong>Option 3: Pay to Mobile Number</strong>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 0.5rem 0;">
+                            Search this registered number directly in Google Pay, PhonePe, or Paytm:
+                        </p>
+                        <div class="copy-box">
+                            <div>
+                                <span class="copy-label">Payment Phone Number</span>
+                                <span id="paymentNumText" class="copy-val" th:text="${paymentNumber}">918871921212</span>
+                            </div>
+                            <button type="button" onclick="copyText('paymentNumText', this)" class="btn-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Rearranged WhatsApp Confirmation Action Banner -->
+            <div class="whatsapp-strip">
+                <div class="wa-content">
+                    <div class="wa-bubble">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="wa-text">
+                        <h4>Step 2: Instant WhatsApp Verification</h4>
+                        <p>After completing your payment via QR, UPI ID, or Number, tap below to share your transaction screenshot with your order number.</p>
+                    </div>
+                </div>
+                <div class="wa-action">
+                    <a th:href="${whatsappPaymentUrl}" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">
+                        <i class="fab fa-whatsapp" style="font-size: 1.25rem;"></i> Send WhatsApp Confirmation
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== LIFECYCLE CARDS (Non-Pending Statuses) ==================== -->
+        <div th:unless="${order.paymentStatus?.name() == 'PENDING'}">
+            <!-- Lifecycle Card 1: DELIVERED -->
+            <div th:if="${order.status?.name() == 'DELIVERED'}" class="detail-card" style="text-align: center; border-color: #c3e6cb; background: #f9fff9;">
+                <div style="width: 68px; height: 68px; border-radius: 50%; background: #d4edda; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; color: #155724; font-size: 2rem;">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3 style="color: #155724; font-size: 1.35rem; margin-bottom: 0.5rem;">Order Delivered!</h3>
+                <p style="color: #155724; font-size: 0.9rem; margin-bottom: 1.2rem; line-height: 1.6;">
+                    Your handcrafted Healthy Choco Bytes order has been safely delivered! We hope you love the taste and wholesome nutrition in every homemade bite.
+                </p>
+                <div style="margin-bottom: 1.2rem;">
+                    <span class="badge badge-delivered" style="font-size: 0.9rem; padding: 0.45rem 1.2rem;">Status: Delivered</span>
+                </div>
+                <a href="https://wa.me/918871921212?text=Hello%20Healthy%20Choco%20Bytes,%20I%20have%20feedback%20regarding%20my%20order!" 
+                   target="_blank" rel="noopener noreferrer" class="btn-choco-outline" style="font-size: 0.85rem; padding: 0.5rem 1rem; border-color: #28a745; color: #28a745; text-decoration: none;">
+                    <i class="fab fa-whatsapp"></i> Share Feedback on WhatsApp
+                </a>
+            </div>
+
+            <!-- Lifecycle Card 2: DISPATCHED -->
+            <div th:if="${order.status?.name() == 'DISPATCHED'}" class="detail-card" style="text-align: center; border-color: #b8daff; background: #f0f7ff;">
+                <div style="width: 68px; height: 68px; border-radius: 50%; background: #cce5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; color: #004085; font-size: 2rem;">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h3 style="color: #004085; font-size: 1.35rem; margin-bottom: 0.5rem;">Order Dispatched</h3>
+                <p style="color: #004085; font-size: 0.9rem; margin-bottom: 1.2rem; line-height: 1.6;">
+                    Your chocolates are freshly packaged and on the way to your address! Please keep your mobile handy for delivery updates.
+                </p>
+                <span class="badge badge-dispatched" style="font-size: 0.9rem; padding: 0.45rem 1.2rem;">Status: Dispatched</span>
+            </div>
+
+            <!-- Lifecycle Card 3: PAYMENT VERIFIED / PREPARING -->
+            <div th:if="${(order.paymentStatus?.name() == 'VERIFIED' or order.status?.name() == 'CONFIRMED' or order.status?.name() == 'PAYMENT_VERIFIED') and order.status?.name() != 'DELIVERED' and order.status?.name() != 'DISPATCHED' and order.status?.name() != 'CANCELLED'}" class="detail-card" style="text-align: center; border-color: #d4edda; background: #f9fff9;">
+                <div style="width: 68px; height: 68px; border-radius: 50%; background: #d4edda; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; color: #155724; font-size: 2rem;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 style="color: #155724; font-size: 1.35rem; margin-bottom: 0.5rem;">Payment Verified</h3>
+                <p style="color: #155724; font-size: 0.9rem; margin-bottom: 1.2rem; line-height: 1.6;">
+                    Your payment has been verified by our team. Your chocolates are being carefully handcrafted and packaged for dispatch.
+                </p>
+                <span class="badge badge-verified" style="font-size: 0.9rem; padding: 0.45rem 1.2rem;">Order Status: Confirmed</span>
+            </div>
+
+            <!-- Lifecycle Card 4: FAILED or CANCELLED -->
+            <div th:if="${order.status?.name() == 'CANCELLED' or order.paymentStatus?.name() == 'FAILED'}" class="detail-card" style="text-align: center; border-color: #f8d7da; background: #fff8f8;">
+                <div style="width: 68px; height: 68px; border-radius: 50%; background: #f8d7da; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; color: #721c24; font-size: 2rem;">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <h3 style="color: #721c24; font-size: 1.35rem; margin-bottom: 0.5rem;">Order Cancelled</h3>
+                <p style="color: #721c24; font-size: 0.9rem; margin-bottom: 1.2rem;">
+                    This order has been cancelled or the payment was not completed. If you need assistance, please contact us on WhatsApp.
+                </p>
+                <span class="badge badge-cancelled" style="font-size: 0.9rem; padding: 0.45rem 1.2rem;">Order Status: Cancelled</span>
+            </div>
+        </div>
+
+        <!-- ==================== 2-COLUMN ORDER DETAILS (Items & Delivery Info) ==================== -->
+        <div class="order-details-grid">
+            
+            <!-- Left Column: Items Ordered -->
+            <div class="detail-card">
+                <h2 style="font-size: 1.3rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--bg-beige); padding-bottom: 0.8rem; color: var(--choco-dark);">
+                    Items Ordered (<span th:text="${#lists.size(order.items)}">2</span>)
+                </h2>
+
+                <div th:each="item : ${order.items}" class="item-row">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 50px; height: 50px; border-radius: 8px; background: var(--bg-cream); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--gold-accent);">
+                            <i class="fas fa-cookie"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0; font-size: 0.95rem; color: var(--choco-dark);" th:text="${item.productName}">Almond Rocks</h4>
+                            <span style="color: var(--text-muted); font-size: 0.82rem;">
+                                Qty: <span th:text="${item.quantity}">1</span> &times; &#8377;<span th:text="${#numbers.formatDecimal(item.unitPrice, 1, 2)}">299.00</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div style="font-weight: 700; color: var(--choco-dark);">
+                        &#8377;<span th:text="${#numbers.formatDecimal(item.lineTotal, 1, 2)}">299.00</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bg-beige);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        <span style="color: var(--text-muted);">Items Subtotal:</span>
+                        <span th:text="${'₹' + #numbers.formatDecimal(order.subtotal, 1, 2)}">₹499.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        <span style="color: var(--text-muted);">Delivery Fee:</span>
+                        <span th:if="${order.shippingFee != null and order.shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}" style="color: var(--success-green); font-weight: 700;">FREE</span>
+                        <span th:unless="${order.shippingFee != null and order.shippingFee.compareTo(T(java.math.BigDecimal).ZERO) == 0}" th:text="${'₹' + #numbers.formatDecimal(order.shippingFee != null ? order.shippingFee : 0, 1, 2)}">₹100.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 0.8rem; border-top: 1px solid var(--bg-beige); font-size: 1.15rem; font-weight: 700; color: var(--choco-dark);">
+                        <span>Total Amount:</span>
+                        <span th:text="${'₹' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₹499.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Delivery Information -->
+            <div class="detail-card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--choco-dark); border-bottom: 1px solid var(--bg-beige); padding-bottom: 0.6rem;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--gold-accent); margin-right: 0.5rem;"></i> Delivery Information
+                </h3>
+                <p style="margin: 0 0 0.4rem 0; font-weight: 600; font-size: 1rem; color: var(--choco-dark);" th:text="${order.customerName}">Ashwin Sharma</p>
+                <p style="margin: 0 0 0.4rem 0; color: var(--text-muted); font-size: 0.9rem;" th:text="${order.deliveryAddress}">Flat 402, Royal Palms, Koregaon Park</p>
+                <p style="margin: 0 0 0.8rem 0; color: var(--text-muted); font-size: 0.9rem;" th:text="${(order.deliveryCity != null ? order.deliveryCity : '') + (order.deliveryState != null ? ', ' + order.deliveryState : '') + (order.deliveryPincode != null ? ' - ' + order.deliveryPincode : '')}">Pune, Maharashtra - 411001</p>
+                
+                <div style="background: var(--bg-cream); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem 1rem; margin-top: 0.8rem;">
+                    <div style="font-size: 0.85rem; color: var(--choco-dark); margin-bottom: 0.4rem;">
+                        <i class="fas fa-phone" style="color: var(--gold-accent); width: 16px;"></i> <strong th:text="${order.customerMobile}">9876543210</strong>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">
+                        <i class="fas fa-envelope" style="color: var(--gold-accent); width: 16px;"></i> <span th:text="${order.customerEmail}">name@example.com</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.25rem; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--success-green);">
+                    <i class="fas fa-truck-loading"></i> Fresh Handcrafted &bull; Pune Express Delivery
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+    <script th:if="${orderPlacedSuccess}">
+        /* Clear cart if order was just placed */
+        if (typeof clearCart === 'function') {
+            clearCart();
+        }
+    </script>
+    <script>
+        function copyText(elementId, btn) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const text = el.innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                if (btn) {
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check" style="color: #15803d;"></i> Copied!';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                    }, 2000);
+                } else {
+                    alert('Copied to clipboard: ' + text);
+                }
+            }).catch(err => {
+                prompt('Copy this text:', text);
+            });
+        }
+
+        function copyUpiId() {
+            copyText('upiIdText', null);
+        }
+    </script>
+</body>
+</html>

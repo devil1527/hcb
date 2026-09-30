@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name} + ' | Healthy Choco Bytes'">Product Detail | Healthy Choco Bytes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+</head>
+<body>
+
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main>
+        <div class="product-detail-container" style="max-width: 1000px; margin: 2rem auto;">
+            <a th:href="@{/#products}" style="color: var(--choco-dark); text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;">
+                <i class="fas fa-arrow-left"></i> Back to All Treats
+            </a>
+
+            <div class="product-detail-card">
+                
+                <!-- Product Image -->
+                <div style="position: relative; border-radius: 12px; overflow: hidden; background: white; border: 1px solid var(--bg-beige);">
+                    <img th:src="@{'/images/' + ${product.imageFilename != null and !product.imageFilename.isEmpty() ? product.imageFilename : 'banner.png'}}"
+                         th:alt="${product.name}"
+                         style="width: 100%; height: auto; max-height: 350px; object-fit: cover; display: block;">
+                    
+                    <span th:if="${product.outOfStock}" class="badge badge-out-of-stock" style="top: 15px; right: 15px; font-size: 0.85rem; padding: 6px 12px;">Sold Out</span>
+                    <span th:if="${!product.outOfStock and product.lowStock}" class="badge badge-low-stock" style="top: 15px; right: 15px; font-size: 0.85rem; padding: 6px 14px;">
+                        <i class="fas fa-fire"></i> Selling Out Fast
+                    </span>
+                </div>
+
+                <!-- Product Details -->
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <h1 th:text="${product.name}" style="font-size: clamp(1.6rem, 4vw, 2.3rem); margin-bottom: 0.8rem; line-height: 1.2;">Product Name</h1>
+                    
+                    <div style="font-size: 1.6rem; font-weight: 700; color: var(--gold-accent); margin-bottom: 1.5rem;">
+                        <span th:text="'₹' + ${#numbers.formatDecimal(product.price, 1, 2)}">₹69.00</span>
+                        <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);"
+                              th:if="${product.weightGrams != null}"
+                              th:text="'(' + ${product.weightGrams} + 'g)'"></span>
+                    </div>
+
+                    <p th:text="${product.description}" style="font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem;">
+                        Detailed wholesome product description.
+                    </p>
+
+                    <!-- Availability indicator -->
+                    <div style="margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <span th:if="${product.outOfStock}" style="color: var(--danger-red); font-weight: 600;">
+                            <i class="fas fa-times-circle"></i> Currently Out of Stock
+                        </span>
+                        <span th:if="${!product.outOfStock and product.lowStock}" style="color: #c2410c; font-weight: 600;">
+                            <i class="fas fa-hourglass-half"></i> Limited stock available (Only <span th:text="${product.stockQuantity}">5</span> units left in stock!)
+                        </span>
+                        <span th:if="${!product.outOfStock and !product.lowStock}" style="color: var(--success-green); font-weight: 600;">
+                            <i class="fas fa-check-circle"></i> Freshly Made & In Stock
+                        </span>
+                    </div>
+
+                    <!-- Quantity & Add to Cart -->
+                    <div style="display: flex; gap: 15px; align-items: center; max-width: 320px;">
+                        <div class="quantity-control" style="margin-bottom: 0;">
+                            <button type="button" class="qty-btn"
+                                    th:data-id="${product.id}"
+                                    onclick="changeProductQty(this.getAttribute('data-id'), -1)"
+                                    th:disabled="${product.outOfStock}">-</button>
+                            <input type="text" th:id="'qty-' + ${product.id}" class="qty-input" value="1" 
+                                   th:data-stock="${product.stockQuantity}" readonly>
+                            <button type="button" class="qty-btn"
+                                    th:data-id="${product.id}"
+                                    onclick="changeProductQty(this.getAttribute('data-id'), 1)"
+                                    th:disabled="${product.outOfStock}">+</button>
+                        </div>
+                        <button type="button" class="add-to-cart-btn"
+                                th:disabled="${product.outOfStock}"
+                                th:data-id="${product.id}"
+                                th:data-name="${product.name}"
+                                th:data-price="${product.price}"
+                                th:data-image="${product.imageFilename}"
+                                th:data-stock="${product.stockQuantity}"
+                                onclick="handleAddToCartBtn(this)">
+                            <span th:if="${product.outOfStock}"><i class="fas fa-ban"></i> Sold Out</span>
+                            <span th:unless="${product.outOfStock}"><i class="fas fa-cart-plus"></i> Add to Cart</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+</body>
+</html>

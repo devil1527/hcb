@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+    <div th:fragment="cartDrawer">
+        <!-- Cart Drawer Overlay -->
+        <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+        <!-- Cart Drawer Modal -->
+        <div class="cart-modal" id="cartModal" role="dialog" aria-modal="true" aria-label="Shopping Cart">
+            <div class="cart-header">
+                <h3>Your Shopping Cart</h3>
+                <button type="button" class="close-cart" onclick="toggleCart()" aria-label="Close cart">&times;</button>
+            </div>
+            
+            <div class="cart-items" id="cartItemsContainer">
+                <p style="text-align: center; color: var(--text-muted); margin-top: 2rem;">Your cart is empty.</p>
+            </div>
+
+            <div class="checkout-form" id="checkoutSection" style="display: none;">
+                <div class="free-shipping-notice" id="freeShippingNoticeBox"></div>
+                <div class="checkout-summary-line">
+                    <span>Subtotal:</span>
+                    <span id="cartSubtotal">₹0.00</span>
+                </div>
+                <div class="checkout-summary-line">
+                    <span>Shipping Fee:</span>
+                    <span id="cartShippingDisplay">₹100</span>
+                </div>
+                <div class="checkout-total">
+                    <span>Estimated Total:</span>
+                    <span id="cartTotalPrice">₹100.00</span>
+                </div>
+                
+                <!-- Customer & Guest Checkout Button -->
+                <a sec:authorize="!hasRole('ADMIN')" th:href="@{/checkout}" class="btn-proceed-checkout" id="proceedCheckoutBtn">
+                    <i class="fas fa-lock"></i> Proceed to Checkout
+                </a>
+
+                <!-- Administrator Notice -->
+                <div sec:authorize="hasRole('ADMIN')" style="background: #fff3cd; color: #856404; padding: 0.8rem; border-radius: 8px; font-size: 0.82rem; text-align: center; margin-top: 1rem; border: 1px solid #ffeeba;">
+                    <i class="fas fa-shield-alt"></i> <strong>Admin Notice:</strong> Administrators manage store operations and cannot place customer orders.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | Healthy Choco Bytes</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/hcb.css(v='2.3')}">
+    
+    <style>
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2.5rem;
+            max-width: 1100px;
+            margin: 2.5rem auto;
+            padding: 0 4%;
+        }
+        .checkout-card {
+            background: white;
+            border: 1px solid var(--bg-beige);
+            border-radius: 16px;
+            padding: 2.2rem;
+            box-shadow: 0 5px 25px rgba(62,36,21,0.04);
+        }
+        @media (max-width: 850px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin: 1.5rem auto;
+                padding: 0 3%;
+            }
+            .checkout-card {
+                padding: 1.4rem 1.1rem;
+                border-radius: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .checkout-layout {
+                margin: 1rem auto !important;
+                padding: 0 8px !important;
+                padding-bottom: 80px !important;
+                gap: 1.2rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .checkout-card {
+                padding: 1.1rem 0.75rem !important;
+                border-radius: 12px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                min-width: 0 !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
+            }
+            .checkout-card h2 {
+                font-size: 1.35rem !important;
+            }
+            .form-grid-2, .form-grid-3 {
+                grid-template-columns: 100% !important;
+                gap: 0.75rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/header :: nav}"></nav>
+
+    <main>
+        <div class="checkout-layout">
+            
+            <!-- Delivery Details Form -->
+            <div class="checkout-card">
+                <h2 style="margin-bottom: 0.5rem; font-size: 1.8rem;">Delivery Information</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Where should we freshly dispatch your chocolates?</p>
+
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                <div th:if="${#fields.hasErrors('${checkoutForm.*}')}" class="alert alert-danger">
+                    Please correct the highlighted errors before continuing.
+                </div>
+
+                <form th:action="@{/checkout}" th:object="${checkoutForm}" method="post" id="checkoutForm">
+                    <input type="hidden" th:field="*{idempotencyToken}">
+                    <input type="hidden" id="cartDataInput" th:field="*{cartData}">
+
+                    <div class="form-group">
+                        <label for="customerName">Full Name *</label>
+                        <input type="text" id="customerName" th:field="*{customerName}" class="form-control" placeholder="Recipient's name" required>
+                        <span th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}" class="form-error"></span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="customerEmail">Email Address (for order updates) *</label>
+                            <input type="email" id="customerEmail" th:field="*{customerEmail}" class="form-control" placeholder="name@example.com" required>
+                            <span th:if="${#fields.hasErrors('customerEmail')}" th:errors="*{customerEmail}" class="form-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="customerMobile">Mobile Number (10 Digits) *</label>
+                            <input type="tel" id="customerMobile" th:field="*{customerMobile}" class="form-control" placeholder="9876543210" required>
+                            <span th:if="${#fields.hasErrors('customerMobile')}" th:errors="*{customerMobile}" class="form-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deliveryAddress">Delivery Address (House/Flat, Street, Area) *</label>
+                        <textarea id="deliveryAddress" th:field="*{deliveryAddress}" class="form-control" rows="3" placeholder="Full street address" required></textarea>
+                        <span th:if="${#fields.hasErrors('deliveryAddress')}" th:errors="*{deliveryAddress}" class="form-error"></span>
+                    </div>
+
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label for="deliveryCity">City *</label>
+                            <input type="text" id="deliveryCity" th:field="*{deliveryCity}" class="form-control" placeholder="Pune" required>
+                            <span th:if="${#fields.hasErrors('deliveryCity')}" th:errors="*{deliveryCity}" class="form-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deliveryState">State *</label>
+                            <input type="text" id="deliveryState" th:field="*{deliveryState}" class="form-control" placeholder="Maharashtra" required>
+                            <span th:if="${#fields.hasErrors('deliveryState')}" th:errors="*{deliveryState}" class="form-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deliveryPincode">Pincode *</label>
+                            <input type="text" id="deliveryPincode" th:field="*{deliveryPincode}" class="form-control" placeholder="411001" maxlength="6" required>
+                            <span th:if="${#fields.hasErrors('deliveryPincode')}" th:errors="*{deliveryPincode}" class="form-error"></span>
+                            <div id="pincodeClientWarning" class="form-error" style="display: none; margin-top: 5px; font-weight: 600;"></div>
+                            <small th:if="${pincodeRestrictionEnabled}" style="display: block; font-size: 0.75rem; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 4px 8px; margin-top: 5px;">
+                                <i class="fas fa-truck-fast"></i> Currently serving <strong th:text="${deliveryRegionName}">Pune & PCMC</strong> (PIN codes: <span th:text="${deliveryMinPincode}">411001</span> – <span th:text="${deliveryMaxPincode}">411090</span>)
+                            </small>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <button type="submit" class="btn-choco" style="width: 100%; border: none; font-size: 1rem; padding: 1rem;">
+                            <i class="fas fa-lock"></i> Place Order & View UPI Payment Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Cart Items Summary Review -->
+            <div>
+                <div class="checkout-card" style="position: sticky; top: 100px;">
+                    <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem;">Order Summary</h3>
+                    
+                    <div id="checkoutItemsList" style="margin-bottom: 1.5rem; max-height: 280px; overflow-y: auto;">
+                        <!-- Injected via JavaScript from localStorage -->
+                    </div>
+
+                    <div id="checkoutEmptyWarning" style="display: none; text-align: center; color: var(--danger-red); margin-bottom: 1rem;">
+                        Your cart is empty. Please <a th:href="@{/#products}" style="color: var(--gold-accent);">add treats</a> to checkout.
+                    </div>
+
+                    <div style="border-top: 1px solid var(--bg-beige); padding-top: 1rem;">
+                        <div class="checkout-summary-line">
+                            <span>Subtotal:</span>
+                            <span id="summarySubtotal">₹0.00</span>
+                        </div>
+                        <div class="checkout-summary-line">
+                            <span>Delivery:</span>
+                            <span id="summaryShipping">₹100.00</span>
+                        </div>
+                        <div class="checkout-total">
+                            <span>Total Payable:</span>
+                            <span id="summaryTotal">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-cream); padding: 1rem; border-radius: 8px; font-size: 0.82rem; color: var(--text-muted); margin-top: 1.5rem; border: 1px solid var(--bg-beige);">
+                        <i class="fas fa-shield-alt" style="color: var(--gold-accent);"></i>
+                        <strong>100% Secure Manual UPI Payment:</strong> After submitting your address, you will receive our verified UPI QR code and easy WhatsApp verification link.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/cart-drawer :: cartDrawer}"></div>
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <script th:src="@{/js/hcb-cart.js}"></script>
+    <script th:src="@{/js/hcb-main.js}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cart = getCart();
+            const itemsList = document.getElementById('checkoutItemsList');
+            const emptyWarning = document.getElementById('checkoutEmptyWarning');
+            const cartDataInput = document.getElementById('cartDataInput');
+            const subtotalEl = document.getElementById('summarySubtotal');
+            const shippingEl = document.getElementById('summaryShipping');
+            const totalEl = document.getElementById('summaryTotal');
+
+            if (!cart || cart.length === 0) {
+                if (emptyWarning) emptyWarning.style.display = 'block';
+                return;
+            }
+
+            // Sync cart items to hidden input
+            if (cartDataInput) {
+                cartDataInput.value = JSON.stringify(cart);
+            }
+
+            let subtotal = 0;
+            let html = '';
+            cart.forEach(item => {
+                let lineTotal = item.price * item.qty;
+                subtotal += lineTotal;
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--bg-beige); font-size: 0.9rem;">
+                        <div>
+                            <strong>${escapeHtml(item.name)}</strong><br>
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">Qty: ${item.qty} × ₹${item.price.toFixed(2)}</span>
+                        </div>
+                        <span style="font-weight: 600;">₹${lineTotal.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            let shipping = subtotal >= 499 ? 0 : 100;
+            let total = subtotal + shipping;
+
+            if (itemsList) itemsList.innerHTML = html;
+            if (subtotalEl) subtotalEl.innerText = '₹' + subtotal.toFixed(2);
+            if (shippingEl) {
+                shippingEl.innerHTML = shipping === 0 ? '<span style="color: var(--success-green); font-weight: 700;">FREE</span>' : '₹100.00';
+            }
+            if (totalEl) totalEl.innerText = '₹' + total.toFixed(2);
+
+            // Real-time Pincode Validation
+            const pincodeInput = document.getElementById('deliveryPincode');
+            const warningEl = document.getElementById('pincodeClientWarning');
+            if (pincodeInput && warningEl) {
+                pincodeInput.addEventListener('input', function() {
+                    const val = this.value.trim();
+                    if (val.length === 6 && /^\d+$/.test(val)) {
+                        const code = parseInt(val, 10);
+                        const min = 411001;
+                        const max = 411090;
+                        if (code < min || code > max) {
+                            warningEl.style.display = 'block';
+                            warningEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> We currently only deliver in Pune & PCMC (411001 – 411090). PIN ' + val + ' is not yet serviceable.';
+                        } else {
+                            warningEl.style.display = 'none';
+                        }
+                    } else {
+                        warningEl.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
